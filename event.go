@@ -23,8 +23,11 @@ type EventResponse struct {
 
 // Async event response is a response to an AsyncEventRequest
 type AsyncEventResponse struct {
-	QueueCount int `json:"queue_count"`
+	QueueCount int                 `json:"queue_count"`
+	Errors     EventResponseErrors `json:"errors"`
 }
+
+type EventResponseErrors map[int]Error
 
 /*type RunnableEvent struct {
 	Name          string           `json:"name"`
