@@ -2,9 +2,10 @@ package ctypes
 
 // Event is sent from a package to Convai (basically a request)
 type Event struct {
-	ID            string           `json:"id"`
-	ContextTree   ContextTreeSlice `json:"context_tree"`
-	RequestMemory MemoryContainer  `json:"request_memory"`
+	ID              string           `json:"id"`
+	ContextTree     ContextTreeSlice `json:"context_tree"`
+	Text            string           `json:"text"`
+	Transformations []Transformation `json:"transformations"`
 }
 
 // Event Request is a request that must be answered with execution result
