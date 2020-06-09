@@ -21,7 +21,6 @@ type Context struct {
 type ContextTreeSlice struct {
 	Name     string             `json:"name"`
 	Ref      *string            `json:"ref"` // Ref in this case is only one value because it's used to search
-	Memory   []MemoryContainer  `json:"memory"`
 	Children []ContextTreeSlice `json:"children"`
 }
 

@@ -17,7 +17,8 @@ type LogEntry struct {
 }
 
 type Transformation struct {
-	Key       string `json:"key"`
-	Value     string `json:"value"`
-	Operation int    `json:"operation"`
+	MemoryContainerName string      `json:"memory_container_name"`
+	Key                 string      `json:"key"`
+	Value               interface{} `json:"value"`
+	Operation           int         `json:"operation"`
 }

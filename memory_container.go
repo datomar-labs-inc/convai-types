@@ -1,6 +1,6 @@
 package ctypes
 
-type Mem map[string]string
+type Mem map[string]interface{}
 
 const (
 	LifetimeModule = iota
@@ -16,12 +16,7 @@ type MemoryContainer struct {
 	Data     Mem    `json:"data"`
 }
 
-func (m *MemoryContainer) Put(key, value string) *MemoryContainer {
-	m.Data[key] = value
-	return m
-}
-
-func (m *MemoryContainer) PutInt(key, value string) *MemoryContainer {
+func (m *MemoryContainer) Put(key string, value interface{}) *MemoryContainer {
 	m.Data[key] = value
 	return m
 }
