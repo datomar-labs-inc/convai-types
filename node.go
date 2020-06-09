@@ -1,8 +1,26 @@
 package ctypes
 
 import (
+	"database/sql"
+	"database/sql/driver"
+
 	"github.com/google/uuid"
+	"upper.io/db.v3/postgresql"
 )
+
+type DBNode struct {
+	ID        string    `db:"id" json:"id"`
+	PackageID uuid.UUID `db:"package_id" json:"package_id"`
+	Version   string    `db:"verison" json:"version"`
+	Name      string    `db:"name" json:"name"`
+	Docs      string    `db:"docs" json:"docs"`
+	Style     NodeStyle `db:"style" json:"style"`
+}
+
+type NodeStyle struct {
+	Color string   `json:"color"` // Valid hex code color
+	Icons []string `json:"icons"` // File name (files will be served in a special format by the plugin)
+}
 
 // NodeCall is Convai requesting that a package perform a node execution and return the result
 type NodeCall struct {
@@ -38,3 +56,16 @@ type PackageNode struct {
 	Style         NodeStyle `json:"style"`
 	Documentation string    `json:"documentation"` // Markdown format
 }
+
+func (g NodeStyle) Value() (driver.Value, error) {
+	return postgresql.EncodeJSONB(g)
+}
+
+func (g *NodeStyle) Scan(src interface{}) error {
+	return postgresql.DecodeJSONB(g, src)
+}
+
+var (
+	_ driver.Valuer = &NodeStyle{}
+	_ sql.Scanner   = &NodeStyle{}
+)
