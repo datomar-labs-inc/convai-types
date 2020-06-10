@@ -17,6 +17,15 @@ type DBLink struct {
 	Style     LinkStyle `db:"style" json:"style"`
 }
 
+// GraphLink is the variant of link that lives in a compiled executable
+type GraphLink struct {
+	ID         uuid.UUID `json:"id" msgpack:"i"`
+	PackageID  uuid.UUID `json:"package_id" msgpack:"p"`
+	LinkTypeID string    `json:"link_type_id" msgpack:"l"`
+	Version    string    `json:"version" msgpack:"v"`
+	ConfigJSON string    `json:"config_json" msgpack:"c"`
+}
+
 type LinkStyle struct {
 	Color string   `json:"color"` // Valid hex code color
 	Icons []string `json:"icons"` // File name (files will be served in a special format by the plugin)

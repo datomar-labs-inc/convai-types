@@ -17,6 +17,24 @@ type DBNode struct {
 	Style     NodeStyle `db:"style" json:"style"`
 }
 
+type GraphNode struct {
+	ID uuid.UUID `json:"id" msgpack:"i"`
+
+	// Properties that are common to all types of nodes
+	PackageID  uuid.UUID `json:"package_id,omitempty" msgpack:"p,omitempty"`
+
+	// Properties of a node that references functionality in a package
+	NodeTypeID *string   `json:"node_type_id,omitempty" msgpack:"n,omitempty"`
+	Version    *string   `json:"version,omitempty" msgpack:"v,omitempty"`
+	ConfigJSON *string   `json:"config_json,omitempty" msgpack:"c,omitempty"`
+
+	// Properties of a node that acts as a reference to a module
+	ModuleID uuid.UUID `json:"module_id,omitempty" msgpack:"m,omitempty"`
+
+	// Properties of a node that acts as an event entrypoint
+	EventTypeID *string `json:"event_type_id,omitempty" msgapck:"e,omitempty"`
+}
+
 type NodeStyle struct {
 	Color string   `json:"color"` // Valid hex code color
 	Icons []string `json:"icons"` // File name (files will be served in a special format by the plugin)
