@@ -18,7 +18,7 @@ type AsyncEventRequest struct {
 	Events []Event `json:"events"`
 }
 
-//
+// EventResponse is a response to a synchronous event, requiring execution to complete before responding
 type EventResponse struct {
 }
 
