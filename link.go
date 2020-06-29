@@ -1,8 +1,35 @@
 package ctypes
 
 import (
+	"database/sql"
+	"database/sql/driver"
+
 	"github.com/google/uuid"
+	"upper.io/db.v3/postgresql"
 )
+
+type DBLink struct {
+	ID        string    `db:"id" json:"id"`
+	PackageID uuid.UUID `db:"package_id" json:"package_id"`
+	Version   string    `db:"verison" json:"version"`
+	Name      string    `db:"name" json:"name"`
+	Docs      string    `db:"docs" json:"docs"`
+	Style     LinkStyle `db:"style" json:"style"`
+}
+
+// GraphLink is the variant of link that lives in a compiled executable
+type GraphLink struct {
+	ID         uuid.UUID `json:"id" msgpack:"i"`
+	PackageID  uuid.UUID `json:"package_id" msgpack:"p"`
+	LinkTypeID string    `json:"link_type_id" msgpack:"l"`
+	Version    string    `json:"version" msgpack:"v"`
+	ConfigJSON string    `json:"config_json" msgpack:"c"`
+}
+
+type LinkStyle struct {
+	Color string   `json:"color"` // Valid hex code color
+	Icons []string `json:"icons"` // File name (files will be served in a special format by the plugin)
+}
 
 type PackageLink struct {
 	Name          string    `json:"name"`
@@ -41,3 +68,16 @@ type LinkExecutionRequest struct {
 type LinkExecutionResponse struct {
 	Results []LinkCallResult `json:"results"` // Results should be returned in the same order that the calls were provided
 }
+
+func (g LinkStyle) Value() (driver.Value, error) {
+	return postgresql.EncodeJSONB(g)
+}
+
+func (g *LinkStyle) Scan(src interface{}) error {
+	return postgresql.DecodeJSONB(g, src)
+}
+
+var (
+	_ driver.Valuer = &LinkStyle{}
+	_ sql.Scanner   = &LinkStyle{}
+)
