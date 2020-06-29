@@ -40,11 +40,6 @@ type Point struct {
 	X int
 	Y int
 }
-package ctypes
-
-import (
-	"github.com/google/uuid"
-)
 
 type GraphModule struct {
 	ID    uuid.UUID               `json:"id" msgpack:"i"`
