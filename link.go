@@ -19,12 +19,14 @@ type DBLink struct {
 
 // GraphLink is the variant of link that lives in a compiled executable
 type GraphLink struct {
-	ID         uuid.UUID `json:"id" msgpack:"i"`
-	PackageID  uuid.UUID `json:"package_id" msgpack:"p"`
-	LinkTypeID string    `json:"link_type_id" msgpack:"l"`
-	Version    string    `json:"version" msgpack:"v"`
-	Priority   int       `json:"priority"`
-	ConfigJSON string    `json:"config_json" msgpack:"c"`
+	ID          uuid.UUID `json:"id" msgpack:"i"`
+	PackageID   uuid.UUID `json:"package_id" msgpack:"p"`
+	LinkTypeID  string    `json:"link_type_id" msgpack:"l"`
+	Version     string    `json:"version" msgpack:"v"`
+	Priority    int       `json:"priority"`
+	Source      uuid.UUID `json:"source"`
+	Destination uuid.UUID `json:"destination"`
+	ConfigJSON  string    `json:"config_json" msgpack:"c"`
 }
 
 type LinkStyle struct {

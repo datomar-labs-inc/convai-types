@@ -12,9 +12,9 @@ type PackageAsset struct {
 }
 
 type Module struct {
-	ID      uuid.UUID
-	Name    string
-	Graph   Graph
+	ID    uuid.UUID
+	Name  string
+	Graph Graph
 	PackageAsset
 }
 
@@ -44,5 +44,5 @@ type Point struct {
 type GraphModule struct {
 	ID    uuid.UUID               `json:"id" msgpack:"i"`
 	Nodes map[uuid.UUID]GraphNode `json:"nodes" msgpack:"n"`
-	Links map[uuid.UUID]GraphLink `json:"links" msgpack:"l"`
+	Links []GraphLink             `json:"links" msgpack:"l"`
 }
