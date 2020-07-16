@@ -23,6 +23,7 @@ type GraphLink struct {
 	PackageID  uuid.UUID `json:"package_id" msgpack:"p"`
 	LinkTypeID string    `json:"link_type_id" msgpack:"l"`
 	Version    string    `json:"version" msgpack:"v"`
+	Priority   int       `json:"priority"`
 	ConfigJSON string    `json:"config_json" msgpack:"c"`
 }
 

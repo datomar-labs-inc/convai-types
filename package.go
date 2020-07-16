@@ -5,11 +5,12 @@ import (
 )
 
 type DBPackage struct {
-	ID          uuid.UUID `db:"id" json:"id"`
-	Name        string    `db:"name" json:"name"`
-	Description string    `db:"description" json:"description"`
-	BaseURL     string    `db:"base_url" json:"base_url"`
-	SigningKey  string    `db:"signing_key" json:"signing_key"`
+	ID             uuid.UUID `db:"id" json:"id"`
+	Name           string    `db:"name" json:"name"`
+	Description    string    `db:"description" json:"description"`
+	OrganizationID uuid.UUID `db:"organization_id" json:"organization_id"`
+	BaseURL        string    `db:"base_url" json:"base_url"`
+	SigningKey     string    `db:"signing_key" json:"signing_key"`
 }
 
 type Package struct {
