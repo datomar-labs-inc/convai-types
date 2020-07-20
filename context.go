@@ -17,6 +17,13 @@ type Context struct {
 	Children []Context `json:"-"`
 }
 
+type DBContext struct {
+	ID               uuid.UUID           `db:"id" json:"id"`
+	ParentID         uuid.UUID           `db:"parent_id" json:"parent_id"`
+	Name             string              `db:"name" json:"name"`
+	MemoryContainers []DBMemoryContainer `db:"memory_containers" json:"memory_containers"`
+}
+
 // ContextTreeSlice is used to rectify a context tree. It is one piece (log) of a context tree
 type ContextTreeSlice struct {
 	Name     string             `json:"name"`
@@ -67,4 +74,3 @@ func (c ContextTreeSlice) GetContextByRef(ref string) (*ContextTreeSlice, bool) 
 
 	return nil, false
 }
-
