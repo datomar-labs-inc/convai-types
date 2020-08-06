@@ -17,8 +17,8 @@ type DBLink struct {
 	Style     LinkStyle `db:"style" json:"style"`
 }
 
-// GraphLink is the variant of link that lives in a compiled executable
-type GraphLink struct {
+// CompiledGraphLink is the variant of link that lives in a compiled executable
+type CompiledGraphLink struct {
 	ID          uuid.UUID `json:"id" msgpack:"i"`
 	PackageID   uuid.UUID `json:"package_id" msgpack:"p"`
 	LinkTypeID  string    `json:"link_type_id" msgpack:"l"`

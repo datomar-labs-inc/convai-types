@@ -19,9 +19,17 @@ type Context struct {
 
 type DBContext struct {
 	ID               uuid.UUID           `db:"id" json:"id"`
-	ParentID         uuid.UUID           `db:"parent_id" json:"parent_id"`
+	ParentID         *uuid.UUID          `db:"parent_id,omitempty" json:"parent_id,omitempty"`
 	Name             string              `db:"name" json:"name"`
 	MemoryContainers []DBMemoryContainer `db:"memory_containers" json:"memory_containers"`
+
+	// The ref property is not present on the contexts table, but is frequently queried with it
+	Ref *string `db:"ref,omitempty" json:"ref,omitempty"`
+}
+
+type DBContextRef struct {
+	ContextID uuid.UUID `db:"context_id" json:"context_id"`
+	Ref       string    `db:"ref" json:"ref"`
 }
 
 // ContextTreeSlice is used to rectify a context tree. It is one piece (log) of a context tree

@@ -1,8 +1,27 @@
 package ctypes
 
 import (
+	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/blang/semver/v4"
 	"github.com/google/uuid"
+	"upper.io/db.v3/postgresql"
 )
+
+type DBModule struct {
+	ID        uuid.UUID   `db:"id" json:"id"`
+	Version   string      `db:"version" json:"version"`
+	Changelog string      `db:"changelog" json:"changelog"`
+	Name      string      `db:"name" json:"name"`
+	Graph     GraphModule `db:"graph" json:"graph"`
+	CreatedAt *time.Time  `db:"created_at,omitempty" json:"created_at"`
+	UpdatedAt *time.Time  `db:"updated_at,omitempty" json:"updated_at"`
+}
 
 // Data fields for an asset originating from a package
 type PackageAsset struct {
@@ -11,34 +30,82 @@ type PackageAsset struct {
 	PackageID           string    // ID of the package this asset is from
 }
 
-type Module struct {
-	ID    uuid.UUID
-	Name  string
-	Graph Graph
-	PackageAsset
+type GraphNode struct {
+	ID uuid.UUID `json:"id" msgpack:"i"`
+
+	// Properties that are common to all types of nodes
+	PackageID uuid.UUID `json:"package_id,omitempty" msgpack:"p,omitempty"`
+
+	// Properties of a node that references functionality in a package
+	NodeTypeID *string `json:"node_type_id,omitempty" msgpack:"n,omitempty"`
+	Version    *string `json:"version,omitempty" msgpack:"v,omitempty"`
+	ConfigJSON *string `json:"config_json,omitempty" msgpack:"c,omitempty"`
+
+	// Properties of a node that acts as a reference to a module
+	ModuleID      *uuid.UUID `json:"module_id,omitempty" msgpack:"m,omitempty"`
+	ModuleVersion *string    `json:"module_version,omitempty" msgpack:"mv,omitempty"`
+
+	// Properties of a node that acts as an event entrypoint
+	EventTypeID *string `json:"event_type_id,omitempty" msgapck:"e,omitempty"`
+
+	Layout Point `json:"layout"`
 }
 
-type Graph struct {
-	Objects      []GraphObject
-	LastObjectID int // Couldnt find a better way to figure this out
+// CompiledGraphLink is the variant of link that lives in a compiled executable
+type GraphLink struct {
+	ID         uuid.UUID `json:"id" msgpack:"i"`
+	PackageID  uuid.UUID `json:"package_id" msgpack:"p"`
+	LinkTypeID string    `json:"link_type_id" msgpack:"l"`
+	Version    string    `json:"version" msgpack:"v"`
+	Priority   int       `json:"priority"`
+	ConfigJSON string    `json:"config_json" msgpack:"c"`
+	A          LinkPoint `json:"a"`
+	B          LinkPoint `json:"b"`
 }
 
-// How do we handle styling at this point? Part of config or its own data field?
-// Object on a graph (link, node)
-type GraphObject struct {
-	ID          int         // ID of the object on the graph/in the module
-	Name        string      // Name of the object (having this outside the config allows nil config objects)
-	Type        int         // Node, Link?
-	ConfigID    *uuid.UUID  // DB ID of the config
-	Layout      []Point     // Where the object is located on the graph
-	Connections []uuid.UUID // A list of objects this is connected to on the graph
-	PackageAsset
+type LinkPoint struct {
+	NodeID   *uuid.UUID `json:"node_id"`
+	IsOutput bool       `json:"is_input"`
+	Position Point      `json:"pos"`
+}
+
+func (l *GraphLink) Validate() error {
+	if l.ID == uuid.Nil {
+		return errors.New("link cannot have nil id")
+	}
+
+	if l.LinkTypeID == "" {
+		return errors.New("link type id missing")
+	}
+
+	if l.A.NodeID != nil && l.B.NodeID != nil && *l.A.NodeID == *l.B.NodeID {
+		return errors.New("link source and destination cannot be identical")
+	}
+
+	if l.A.Position.X == l.B.Position.X && l.A.Position.Y == l.B.Position.Y {
+		return errors.New("both link points cannot occupy the same position")
+	}
+
+	if !json.Valid([]byte(l.ConfigJSON)) {
+		return errors.New("config json is invalid")
+	}
+
+	if _, err := semver.Parse(l.Version); err != nil {
+		return fmt.Errorf("invalid version: %v", err)
+	}
+
+	return nil
 }
 
 // Single point used to derive a layout/draw an object
 type Point struct {
-	X int
-	Y int
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
+type CompiledGraphModule struct {
+	Nodes map[uuid.UUID]CompiledGraphNode `json:"nodes" msgpack:"n"`
+	Links []CompiledGraphLink             `json:"links" msgpack:"l"`
 }
 
 type GraphModule struct {
@@ -46,3 +113,49 @@ type GraphModule struct {
 	Nodes map[uuid.UUID]GraphNode `json:"nodes" msgpack:"n"`
 	Links []GraphLink             `json:"links" msgpack:"l"`
 }
+
+func (m *GraphModule) Validate() error {
+	if m.ID == uuid.Nil {
+		return errors.New("module cannot have nil ID")
+	}
+
+	if m.Nodes == nil {
+		return errors.New("module cannot have nil nodes")
+	}
+
+	if m.Links == nil {
+		return errors.New("module cannot have nil links")
+	}
+
+	// TODO validate links do not have double inputs
+
+	// Check for duplicate links
+	dups := map[string]bool{}
+
+	for _, l := range m.Links {
+		if l.B.NodeID != nil && l.A.NodeID != nil {
+			key := fmt.Sprintf("%s-%s", l.A.NodeID.String(), l.B.NodeID.String())
+
+			if dups[key] {
+				return fmt.Errorf("duplicate links %s", key)
+			} else {
+				dups[key] = true
+			}
+		}
+	}
+
+	return nil
+}
+
+func (g GraphModule) Value() (driver.Value, error) {
+	return postgresql.EncodeJSONB(g)
+}
+
+func (g *GraphModule) Scan(src interface{}) error {
+	return postgresql.DecodeJSONB(g, src)
+}
+
+var (
+	_ driver.Valuer = &GraphModule{}
+	_ sql.Scanner   = &GraphModule{}
+)
