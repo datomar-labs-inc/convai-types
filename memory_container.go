@@ -28,21 +28,23 @@ type DBMemoryContainer struct {
 	Exposed bool   `json:"exposed"`
 }
 
+type DBMemoryContainers []DBMemoryContainer
+
 func (m *MemoryContainer) Put(key string, value interface{}) *MemoryContainer {
 	m.Data[key] = value
 	return m
 }
 
-func (g DBMemoryContainer) Value() (driver.Value, error) {
+func (g DBMemoryContainers) Value() (driver.Value, error) {
 	return postgresql.EncodeJSONB(g)
 }
 
-func (g *DBMemoryContainer) Scan(src interface{}) error {
+func (g *DBMemoryContainers) Scan(src interface{}) error {
 	return postgresql.DecodeJSONB(g, src)
 }
 
 var (
-	_ driver.Valuer = &DBMemoryContainer{}
-	_ sql.Scanner   = &DBMemoryContainer{}
+	_ driver.Valuer = &DBMemoryContainers{}
+	_ sql.Scanner   = &DBMemoryContainers{}
 )
 
