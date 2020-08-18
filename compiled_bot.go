@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Location reference constants are used in the LocationReference structs to note the type of location being referenced
 const (
 	LRTypeConfig    = "config"
 	LRTypePosition  = "position"
@@ -14,6 +15,9 @@ const (
 type CompiledBot struct {
 	// Event nodes stores the graph/node combo for each event that can be handled by this bot
 	EventNodes map[string][]uuid.UUID `json:"event_nodes"`
+
+	// PackageIDs stores a list of all packages referenced by this compiled bot
+	PackageIDs []uuid.UUID            `json:"package_ids"`
 
 	// Modules stores all available modules
 	Modules map[uuid.UUID]CompiledGraphModule `json:"modules"`

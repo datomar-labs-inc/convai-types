@@ -84,3 +84,49 @@ func (c ContextTreeSlice) GetContextByRef(ref string) (*ContextTreeSlice, bool) 
 
 	return nil, false
 }
+
+// Retrieve context from a tree slice by name
+func (c *Context) GetContextByName(name string) (*Context, bool) {
+	if c.Name == name {
+		return c, true
+	}
+
+	if len(c.Children) == 0 {
+		return nil, false
+	}
+
+	// Recursive style checking all the children
+	for _, cc := range c.Children {
+		nc, exists := cc.GetContextByName(name)
+		if exists {
+			return nc, exists
+		}
+	}
+
+	return nil, false
+}
+
+// Retrieve a context from a tree slice by Ref
+func (c *Context) GetContextByRef(ref string) (*Context, bool) {
+	if c.Ref != nil {
+		for _, r := range c.Ref {
+			if r == ref {
+				return c, true
+			}
+		}
+	}
+
+	if len(c.Children) == 0 {
+		return nil, false
+	}
+
+	// Recursive style checking all the children
+	for _, cc := range c.Children {
+		nc, exists := cc.GetContextByRef(ref)
+		if exists {
+			return nc, exists
+		}
+	}
+
+	return nil, false
+}
