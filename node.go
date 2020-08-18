@@ -24,7 +24,7 @@ type CompiledGraphNode struct {
 	PackageID uuid.UUID `json:"package_id,omitempty" msgpack:"p,omitempty"`
 
 	// Properties of a node that references functionality in a package
-	NodeTypeID *string `json:"node_type_id,omitempty" msgpack:"n,omitempty"`
+	TypeID     *string `json:"type_id,omitempty" msgpack:"n,omitempty"`
 	Version    *string `json:"version,omitempty" msgpack:"v,omitempty"`
 	ConfigJSON *string `json:"config_json,omitempty" msgpack:"c,omitempty"`
 
@@ -44,7 +44,7 @@ type NodeStyle struct {
 // NodeCall is Convai requesting that a package perform a node execution and return the result
 type NodeCall struct {
 	RequestID       uuid.UUID         `json:"request_id"` // The ID of the current request
-	ID              string            `json:"id"`         // The ID of the node type, used by the plugin to determine which node
+	TypeID          string            `json:"type_id"`    // The TypeID of the node type, used by the plugin to determine which node
 	Version         string            `json:"version"`    // Which version of this node was this config created on
 	Config          MemoryContainer   `json:"config"`     // How this specific node was configured by the bot builder
 	PackageSettings MemoryContainer   `json:"package_settings"`
@@ -70,7 +70,7 @@ type NodeExecutionResponse struct {
 
 type PackageNode struct {
 	Name          string    `json:"name"`
-	ID            string    `json:"id"`
+	TypeID        string    `json:"type_id"`
 	Version       string    `json:"version"` // Valid semantic version
 	Style         NodeStyle `json:"style"`
 	Documentation string    `json:"documentation"` // Markdown format

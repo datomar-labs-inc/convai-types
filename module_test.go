@@ -35,7 +35,7 @@ func TestGraphLink_Validate(t *testing.T) {
 		t.Errorf("expected link type id error, got %v", lv2)
 	}
 
-	link.LinkTypeID = "basic"
+	link.TypeID = "basic"
 
 	lv3 := link.Validate()
 	if lv3 != nil && strings.Contains(lv3.Error(), "link source and destination cannot be identical") {
