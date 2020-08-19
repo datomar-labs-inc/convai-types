@@ -14,6 +14,8 @@ type DBPackage struct {
 }
 
 type Package struct {
+	DBPackage
+
 	Nodes      []PackageNode     `json:"nodes"`
 	Links      []PackageLink     `json:"links"`
 	Events     []RunnableEvent   `json:"events"`
