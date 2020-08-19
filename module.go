@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/blang/semver/v4"
+	"github.com/blang/semver"
 	"github.com/google/uuid"
 	"upper.io/db.v3/postgresql"
 )
@@ -23,13 +23,6 @@ type DBModule struct {
 	UpdatedAt *time.Time  `db:"updated_at,omitempty" json:"updated_at"`
 }
 
-// Data fields for an asset originating from a package
-type PackageAsset struct {
-	PackageAssetID      uuid.UUID // ID of the asset in the package
-	PackageAssetVersion string    // Version of the asset
-	PackageID           string    // ID of the package this asset is from
-}
-
 type GraphNode struct {
 	ID uuid.UUID `json:"id" msgpack:"i"`
 
@@ -37,7 +30,7 @@ type GraphNode struct {
 	PackageID uuid.UUID `json:"package_id,omitempty" msgpack:"p,omitempty"`
 
 	// Properties of a node that references functionality in a package
-	NodeTypeID *string `json:"node_type_id,omitempty" msgpack:"n,omitempty"`
+	TypeID     *string `json:"type_id,omitempty" msgpack:"n,omitempty"`
 	Version    *string `json:"version,omitempty" msgpack:"v,omitempty"`
 	ConfigJSON *string `json:"config_json,omitempty" msgpack:"c,omitempty"`
 
@@ -55,7 +48,7 @@ type GraphNode struct {
 type GraphLink struct {
 	ID         uuid.UUID `json:"id" msgpack:"i"`
 	PackageID  uuid.UUID `json:"package_id" msgpack:"p"`
-	LinkTypeID string    `json:"link_type_id" msgpack:"l"`
+	TypeID     string    `json:"type_id" msgpack:"l"`
 	Version    string    `json:"version" msgpack:"v"`
 	Priority   int       `json:"priority"`
 	ConfigJSON string    `json:"config_json" msgpack:"c"`
@@ -74,7 +67,7 @@ func (l *GraphLink) Validate() error {
 		return errors.New("link cannot have nil id")
 	}
 
-	if l.LinkTypeID == "" {
+	if l.TypeID == "" {
 		return errors.New("link type id missing")
 	}
 
@@ -116,7 +109,7 @@ type GraphModule struct {
 
 func (m *GraphModule) Validate() error {
 	if m.ID == uuid.Nil {
-		return errors.New("module cannot have nil ID")
+		return errors.New("module cannot have nil id")
 	}
 
 	if m.Nodes == nil {

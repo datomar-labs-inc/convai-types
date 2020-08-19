@@ -11,7 +11,7 @@ import (
 type DBLink struct {
 	ID        string    `db:"id" json:"id"`
 	PackageID uuid.UUID `db:"package_id" json:"package_id"`
-	Version   string    `db:"verison" json:"version"`
+	Version   string    `db:"version" json:"version"`
 	Name      string    `db:"name" json:"name"`
 	Docs      string    `db:"docs" json:"docs"`
 	Style     LinkStyle `db:"style" json:"style"`
@@ -21,7 +21,7 @@ type DBLink struct {
 type CompiledGraphLink struct {
 	ID          uuid.UUID `json:"id" msgpack:"i"`
 	PackageID   uuid.UUID `json:"package_id" msgpack:"p"`
-	LinkTypeID  string    `json:"link_type_id" msgpack:"l"`
+	TypeID      string    `json:"type_id" msgpack:"l"`
 	Version     string    `json:"version" msgpack:"v"`
 	Priority    int       `json:"priority"`
 	Source      uuid.UUID `json:"source"`
@@ -36,7 +36,7 @@ type LinkStyle struct {
 
 type PackageLink struct {
 	Name          string    `json:"name"`
-	ID            string    `json:"id"`
+	TypeID        string    `json:"type_id"`
 	Version       string    `json:"version"` // Valid semantic version
 	Style         LinkStyle `json:"style"`
 	Documentation string    `json:"documentation"` // Markdown format
@@ -45,7 +45,7 @@ type PackageLink struct {
 // LinkCall is Convai requesting that a package perform a link execution and return the result
 type LinkCall struct {
 	RequestID       uuid.UUID         `json:"request_id"` // The id of the current request
-	ID              string            `json:"id"`         // The ID of the link type, used by the plugin to determine which link should be executed
+	TypeID          string            `json:"type_id"`    // The TypeID of the link type, used by the plugin to determine which link should be executed
 	Version         string            `json:"version"`    // Which version of this link was this config created on
 	Config          MemoryContainer   `json:"config"`     // How this specific link was configured by the bot builder
 	PackageSettings MemoryContainer   `json:"package_settings"`
