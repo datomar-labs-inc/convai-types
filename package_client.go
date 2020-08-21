@@ -82,7 +82,7 @@ func (p *PackageClient) ExecuteNodeMock(input *NodeCall) (*NodeCallResult, error
 func (p *PackageClient) ExecuteLink(request *LinkExecutionRequest) (*LinkExecutionResponse, error) {
 	var result LinkExecutionResponse
 
-	err := p.DoJSONPost("/nodes/execute", request, &result)
+	err := p.DoJSONPost("/links/execute", request, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (p *PackageClient) ExecuteLink(request *LinkExecutionRequest) (*LinkExecuti
 func (p *PackageClient) ExecuteLinkMock(request *LinkExecutionRequest) (*LinkExecutionResponse, error) {
 	var result LinkExecutionResponse
 
-	err := p.DoJSONPost("/nodes/execute-mock", request, &result)
+	err := p.DoJSONPost("/links/execute-mock", request, &result)
 	if err != nil {
 		return nil, err
 	}
