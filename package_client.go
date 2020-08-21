@@ -45,6 +45,11 @@ func (p *PackageClient) FetchManifest() (*Package, error) {
 		return nil, err
 	}
 
+	p.pkg.Dispatches = result.Dispatches
+	p.pkg.Links = result.Links
+	p.pkg.Nodes = result.Nodes
+	p.pkg.Events = result.Events
+
 	return &result, nil
 }
 
