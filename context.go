@@ -2,6 +2,8 @@ package ctypes
 
 import (
 	"github.com/google/uuid"
+
+	"github.com/datomar-labs-inc/convai-types/deepcopy"
 )
 
 // Context is the actual data format for a context, NOT DATABASE FRIENDLY
@@ -129,4 +131,73 @@ func (c *Context) GetContextByRef(ref string) (*Context, bool) {
 	}
 
 	return nil, false
+}
+
+// GetLastTreeItem returns the deepest child context in the tree.
+// Note, this only works when each context has 0 or 1 children
+func (c *Context) GetLastTreeItem() *Context {
+	if len(c.Children) > 0 {
+		return c.GetLastTreeItem()
+	}
+
+	return c
+}
+
+// AddChildContext adds a child to the current context, and returns the current context
+func (c *Context) AddChildContext(context *Context) *Context {
+	context.ParentID = c.ID
+	context.Parent = c
+	c.Children = append(c.Children, *context)
+	return c
+}
+
+// WithTransformations returns a new context tree with transformations applied
+func (c *Context) WithTransformations(transformations []Transformation) *Context {
+	newMemory := []MemoryContainer{}
+
+	for _, mc := range c.Memory {
+		memCopy, err := deepcopy.DeepCopy(mc.Data)
+		if err != nil {
+			panic(err)
+		}
+
+		newMem := MemoryContainer{
+			Name:    mc.Name,
+			Type:    mc.Type,
+			Exposed: mc.Exposed,
+			Data:    memCopy,
+		}
+
+		for _, transformation := range transformations {
+			if transformation.MemoryContainerName == mc.Name {
+				newMem.Transform(transformation)
+			}
+		}
+
+		newMemory = append(newMemory, newMem)
+	}
+
+	newContext := Context{
+		Name:     c.Name,
+		ID:       c.ID,
+		ParentID: c.ParentID,
+		Ref:      c.Ref,
+		Memory:   newMemory,
+	}
+
+	if len(c.Children) > 0 {
+		var children []Context
+
+		for _, child := range c.Children {
+			transformed := child.WithTransformations(transformations)
+			transformed.ParentID = newContext.ID
+			transformed.Parent = &newContext
+
+			children = append(children, *transformed)
+		}
+
+		newContext.Children = children
+	}
+
+	return &newContext
 }
