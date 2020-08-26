@@ -140,6 +140,31 @@ func (m *GraphModule) Validate() error {
 	return nil
 }
 
+func (m *GraphModule) GetLink(id uuid.UUID) *GraphLink {
+	for _, l := range m.Links {
+		if l.ID == id {
+			return &l
+		}
+	}
+
+	return nil
+}
+
+func (m *GraphModule) DeleteLink(id uuid.UUID) {
+	idx := -1
+
+	for i, l := range m.Links {
+		if l.ID == id {
+			idx = i
+			break
+		}
+	}
+
+	if idx != -1 {
+		m.Links = append(m.Links[:idx], m.Links[idx+1:]...)
+	}
+}
+
 func (g GraphModule) Value() (driver.Value, error) {
 	return postgresql.EncodeJSONB(g)
 }

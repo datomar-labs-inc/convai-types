@@ -35,6 +35,21 @@ func (m *MemoryContainer) Put(key string, value interface{}) *MemoryContainer {
 	return m
 }
 
+func (m *MemoryContainer) Transform(transformation Transformation) *MemoryContainer {
+	if m.Name != transformation.MemoryContainerName {
+		panic("cannot transform memory container due to name mismatch")
+	}
+
+	switch transformation.Operation {
+	case OpSet:
+		m.Data[transformation.Key] = transformation.Value
+	case OpDelete:
+		delete(m.Data, transformation.Key)
+	}
+
+	return m
+}
+
 func (g DBMemoryContainers) Value() (driver.Value, error) {
 	return postgresql.EncodeJSONB(g)
 }

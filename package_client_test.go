@@ -2,7 +2,6 @@ package ctypes
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/google/uuid"
@@ -21,26 +20,6 @@ func newPackageClient() *PackageClient {
 		Events:     nil,
 		Dispatches: nil,
 	})
-}
-
-func TestNewPackageClient(t *testing.T) {
-	type args struct {
-		pkg *Package
-	}
-	tests := []struct {
-		name string
-		args args
-		want *PackageClient
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewPackageClient(tt.args.pkg); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewPackageClient() = %v, want %v", got, tt.want)
-			}
-		})
-	}
 }
 
 // TODO: automate test
