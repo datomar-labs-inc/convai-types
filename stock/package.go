@@ -15,7 +15,7 @@ var StockPackage = ctypes.Package{
 		BaseURL:        "https://stock.convai.dev",
 		SigningKey:     "cheezits",
 	},
-	Nodes: []ctypes.PackageNode{
+	Nodes: []ctypes.DBNode{
 		StockNodeBranch,
 		StockNodeSetData,
 		StockNodeDeleteData,
@@ -24,7 +24,7 @@ var StockPackage = ctypes.Package{
 		StockNodeHTTPRequest,
 		StockNodeWebhook,
 	},
-	Links: []ctypes.PackageLink{
+	Links: []ctypes.DBLink{
 		StockLinkBasic,
 		StockLinkDataEquals,
 		StockLinkError,

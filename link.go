@@ -9,12 +9,12 @@ import (
 )
 
 type DBLink struct {
-	ID        string    `db:"id" json:"id"`
-	PackageID uuid.UUID `db:"package_id" json:"package_id"`
-	Version   string    `db:"version" json:"version"`
-	Name      string    `db:"name" json:"name"`
-	Docs      string    `db:"docs" json:"docs"`
-	Style     LinkStyle `db:"style" json:"style"`
+	TypeID        string    `db:"id" json:"id"`
+	PackageID     uuid.UUID `db:"package_id" json:"package_id"`
+	Version       string    `db:"version" json:"version"`
+	Name          string    `db:"name" json:"name"`
+	Documentation string    `db:"docs" json:"docs"`
+	Style         LinkStyle `db:"style" json:"style"`
 }
 
 // CompiledGraphLink is the variant of link that lives in a compiled executable

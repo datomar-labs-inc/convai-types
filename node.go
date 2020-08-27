@@ -9,12 +9,12 @@ import (
 )
 
 type DBNode struct {
-	ID        string    `db:"id" json:"id"`
-	PackageID uuid.UUID `db:"package_id" json:"package_id"`
-	Version   string    `db:"verison" json:"version"`
-	Name      string    `db:"name" json:"name"`
-	Docs      string    `db:"docs" json:"docs"`
-	Style     NodeStyle `db:"style" json:"style"`
+	TypeID        string    `db:"id" json:"id"`
+	PackageID     uuid.UUID `db:"package_id" json:"package_id"`
+	Version       string    `db:"verison" json:"version"`
+	Name          string    `db:"name" json:"name"`
+	Documentation string    `db:"docs" json:"docs"`
+	Style         NodeStyle `db:"style" json:"style"`
 }
 
 type CompiledGraphNode struct {
@@ -43,7 +43,7 @@ type NodeStyle struct {
 
 // NodeCall is Convai requesting that a package perform a node execution and return the result
 type NodeCall struct {
-	RequestID       uuid.UUID         `json:"request_id"` // The ID of the current request
+	RequestID       uuid.UUID         `json:"request_id"` // The TypeID of the current request
 	TypeID          string            `json:"type_id"`    // The TypeID of the node type, used by the plugin to determine which node
 	Version         string            `json:"version"`    // Which version of this node was this config created on
 	Config          MemoryContainer   `json:"config"`     // How this specific node was configured by the bot builder

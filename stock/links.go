@@ -4,7 +4,7 @@ import (
 	ctypes "github.com/datomar-labs-inc/convai-types"
 )
 
-var StockLinkBasic = ctypes.PackageLink{
+var StockLinkBasic = ctypes.DBLink{
 	Name:    "Basic",
 	TypeID:  "basic",
 	Version: "0.0.1",
@@ -17,7 +17,7 @@ var StockLinkBasic = ctypes.PackageLink{
 	Documentation: ``,
 }
 
-var StockLinkDataEquals = ctypes.PackageLink{
+var StockLinkDataEquals = ctypes.DBLink{
 	Name:    "Data Equals",
 	TypeID:  "data_eq",
 	Version: "0.0.1",
@@ -30,7 +30,7 @@ var StockLinkDataEquals = ctypes.PackageLink{
 	Documentation: ``,
 }
 
-var StockLinkError = ctypes.PackageLink{
+var StockLinkError = ctypes.DBLink{
 	Name:    "Error",
 	TypeID:  "err",
 	Version: "0.0.1",
@@ -43,7 +43,7 @@ var StockLinkError = ctypes.PackageLink{
 	Documentation: ``,
 }
 
-var StockLinkPriority = ctypes.PackageLink{
+var StockLinkPriority = ctypes.DBLink{
 	Name:    "Priority",
 	TypeID:  "priority",
 	Version: "0.0.1",

@@ -4,7 +4,7 @@ import (
 	ctypes "github.com/datomar-labs-inc/convai-types"
 )
 
-var StockNodeBranch = ctypes.PackageNode{
+var StockNodeBranch = ctypes.DBNode{
 	Name:    "Branch",
 	TypeID:  "branch",
 	Version: "0.0.1",
@@ -16,7 +16,7 @@ var StockNodeBranch = ctypes.PackageNode{
 	Documentation: ``,
 }
 
-var StockNodeHalt = ctypes.PackageNode{
+var StockNodeHalt = ctypes.DBNode{
 	Name:    "Halt",
 	TypeID:  "halt",
 	Version: "0.0.1",
@@ -28,7 +28,7 @@ var StockNodeHalt = ctypes.PackageNode{
 	Documentation: ``,
 }
 
-var StockNodeResume = ctypes.PackageNode{
+var StockNodeResume = ctypes.DBNode{
 	Name:    "Resume",
 	TypeID:  "resume",
 	Version: "0.0.1",
@@ -40,7 +40,7 @@ var StockNodeResume = ctypes.PackageNode{
 	Documentation: ``,
 }
 
-var StockNodeSetData = ctypes.PackageNode{
+var StockNodeSetData = ctypes.DBNode{
 	Name:    "Set Data",
 	TypeID:  "set_data",
 	Version: "0.0.1",
@@ -52,7 +52,7 @@ var StockNodeSetData = ctypes.PackageNode{
 	Documentation: ``,
 }
 
-var StockNodeDeleteData = ctypes.PackageNode{
+var StockNodeDeleteData = ctypes.DBNode{
 	Name:    "Delete Data",
 	TypeID:  "delete_data",
 	Version: "0.0.1",
@@ -64,7 +64,7 @@ var StockNodeDeleteData = ctypes.PackageNode{
 	Documentation: ``,
 }
 
-var StockNodeWebhook = ctypes.PackageNode{
+var StockNodeWebhook = ctypes.DBNode{
 	Name:    "Webhook",
 	TypeID:  "webhook",
 	Version: "0.0.1",
@@ -76,7 +76,7 @@ var StockNodeWebhook = ctypes.PackageNode{
 	Documentation: ``,
 }
 
-var StockNodeHTTPRequest = ctypes.PackageNode{
+var StockNodeHTTPRequest = ctypes.DBNode{
 	Name:    "HTTP Request",
 	TypeID:  "http",
 	Version: "0.0.1",

@@ -44,7 +44,7 @@ type DBEvent struct {
 
 /*type RunnableEvent struct {
 	Name          string           `json:"name"`
-	ID            string           `json:"id"`
+	TypeID            string           `json:"id"`
 	Documentation string           `json:"documentation"` // Markdown format
 	Style         ctypes.NodeStyle `json:"style"`
 }
