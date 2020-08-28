@@ -40,6 +40,15 @@ var StockNodeResume = ctypes.DBNode{
 	Documentation: ``,
 }
 
+type SetDataConfig struct {
+	Items []SetDataItem `json:"items"`
+}
+
+type SetDataItem struct {
+	Path  string `json:"path"`  // Path is the context level/memory container name path, eg: user.data.likesCheese
+	Value string `json:"value"` // Value is what the data should be set to, usually a templated string
+}
+
 var StockNodeSetData = ctypes.DBNode{
 	Name:    "Set Data",
 	TypeID:  "set_data",

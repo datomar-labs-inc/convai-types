@@ -1,6 +1,8 @@
 package ctypes
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 
 	"github.com/datomar-labs-inc/convai-types/deepcopy"
@@ -152,7 +154,7 @@ func (c *Context) AddChildContext(context *Context) *Context {
 }
 
 // WithTransformations returns a new context tree with transformations applied
-func (c *Context) WithTransformations(transformations []Transformation) *Context {
+func (c *Context) WithTransformations(transformations []Transformation) (*Context, error) {
 	newMemory := []MemoryContainer{}
 
 	for _, mc := range c.Memory {
@@ -169,8 +171,10 @@ func (c *Context) WithTransformations(transformations []Transformation) *Context
 		}
 
 		for _, transformation := range transformations {
-			if transformation.MemoryContainerName == mc.Name {
+			if transformation.PathValid() && transformation.GetContextLevelName() == c.Name && transformation.GetMemoryContainerName() == mc.Name {
 				newMem.Transform(transformation)
+			} else if !transformation.PathValid() {
+				return nil, errors.New("invalid transformation path: " + transformation.Path)
 			}
 		}
 
@@ -189,7 +193,11 @@ func (c *Context) WithTransformations(transformations []Transformation) *Context
 		var children []Context
 
 		for _, child := range c.Children {
-			transformed := child.WithTransformations(transformations)
+			transformed, err := child.WithTransformations(transformations)
+			if err != nil {
+				return nil, err
+			}
+
 			transformed.ParentID = newContext.ID
 			transformed.Parent = &newContext
 
@@ -199,5 +207,5 @@ func (c *Context) WithTransformations(transformations []Transformation) *Context
 		newContext.Children = children
 	}
 
-	return &newContext
+	return &newContext, nil
 }

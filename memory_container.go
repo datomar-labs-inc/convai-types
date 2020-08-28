@@ -36,15 +36,11 @@ func (m *MemoryContainer) Put(key string, value interface{}) *MemoryContainer {
 }
 
 func (m *MemoryContainer) Transform(transformation Transformation) *MemoryContainer {
-	if m.Name != transformation.MemoryContainerName {
-		panic("cannot transform memory container due to name mismatch")
-	}
-
 	switch transformation.Operation {
 	case OpSet:
-		m.Data[transformation.Key] = transformation.Value
+		m.Data[transformation.GetKey()] = transformation.Value
 	case OpDelete:
-		delete(m.Data, transformation.Key)
+		delete(m.Data, transformation.GetKey())
 	}
 
 	return m

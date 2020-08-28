@@ -1,6 +1,7 @@
 package ctypes
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -117,7 +118,7 @@ func TestContextTreeSlice_GetContextByRef(t *testing.T) {
 
 	/*
 	* Check first level hierarchy
-	*/
+	 */
 	res, exists := cts.GetContextByRef(ref1)
 	if !exists {
 		t.Error("expected ref1 context to exist")
@@ -165,5 +166,112 @@ func TestContextTreeSlice_GetContextByRef(t *testing.T) {
 
 	if res4.Name != "Fake Child" {
 		t.Error("expected result to equal first child of first child of first child of cts")
+	}
+}
+
+func TestContext_WithTransformations(t *testing.T) {
+	tree := Context{
+		Name: "environment",
+		Memory: []MemoryContainer{
+			{
+				Name:    "data",
+				Type:    MCTypeSession,
+				Exposed: false,
+				Data:    Mem{},
+			},
+		},
+		Children: []Context{
+			{
+				Name: "user_group",
+				Memory: []MemoryContainer{
+					{
+						Name:    "data",
+						Type:    MCTypeSession,
+						Exposed: false,
+						Data:    Mem{},
+					},
+				},
+				Children: []Context{
+					{
+						Name: "user",
+						Memory: []MemoryContainer{
+							{
+								Name:    "data",
+								Type:    MCTypeSession,
+								Exposed: false,
+								Data:    Mem{},
+							},
+						},
+						Children: []Context{
+							{
+								Name: "request",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	badTransforms := []Transformation{
+		{
+			Path:      "user.data0  ff.test",
+			Value:     "woah there",
+			Operation: OpSet,
+		},
+		{
+			Path:      "environment.data.0superData",
+			Value:     "holy moly",
+			Operation: OpSet,
+		},
+	}
+
+	for i, ivp := range badTransforms {
+		if ivp.PathValid() {
+			t.Error("expected path ", i, "to be invalid")
+		}
+	}
+
+	_, err := tree.WithTransformations(badTransforms)
+	if err == nil || !strings.Contains(err.Error(), "invalid transformation path") {
+		t.Error("expected invalid transformation path error")
+		return
+	}
+
+	transforms := []Transformation{
+		{
+			Path:      "user.data.test",
+			Value:     "woah there",
+			Operation: OpSet,
+		},
+		{
+			Path:      "environment.data.superData",
+			Value:     "holy moly",
+			Operation: OpSet,
+		},
+	}
+
+	for i, ivp := range transforms {
+		if !ivp.PathValid() {
+			t.Error("expected path", i, "to be valid")
+		}
+	}
+
+	newTree, err := tree.WithTransformations(transforms)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	// Test
+	userContext, exists := newTree.GetContextByName("user")
+	if !exists {
+		t.Error("expected user context to exist")
+		return
+	}
+
+	if data, ok := userContext.Memory[0].Data["test"]; !ok || data != "woah there" {
+		t.Error("Data was not set correctly on user")
+		return
 	}
 }

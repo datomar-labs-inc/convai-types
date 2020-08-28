@@ -7,13 +7,27 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // PlugmanClient is used to make requests to packages
 type PlugmanClient struct {
 	baseURL string
 	client  http.Client
+}
+
+type ManifestResponse struct {
+	Page      PageInfo  `json:"page"`
+	Manifests []Package `json:"data"`
+}
+
+type PageInfo struct {
+	PreviousCursor string `json:"previousCursor"`
+	NextCursor     string `json:"nextCursor"`
+	Count          int    `json:"count"`
 }
 
 func NewPlugmanClient(baseURL string) *PlugmanClient {
@@ -25,14 +39,31 @@ func NewPlugmanClient(baseURL string) *PlugmanClient {
 	}
 }
 
-func (p *PlugmanClient) ListManifest() {}
+func (p *PlugmanClient) ListManifest(ids []uuid.UUID) (*ManifestResponse, error) {
+	var stringFormIds []string
+
+	for _, id := range ids {
+		stringFormIds = append(stringFormIds, id.String())
+	}
+
+	idString := strings.Join(stringFormIds, ",")
+
+	var manifests ManifestResponse
+
+	err := p.DoJSONGet(fmt.Sprintf("/v1/manifest?ids=%s", idString), &manifests)
+	if err != nil {
+		return nil, err
+	}
+
+	return &manifests, nil
+}
 
 func (p *PlugmanClient) DoJSONPost(url string, body interface{}, result interface{}) error {
 	return p.makeRequestWithBody("POST", fmt.Sprintf("%s%s", p.baseURL, url), body, result)
 }
 
 func (p *PlugmanClient) DoJSONGet(url string, result interface{}) error {
-	return p.makeRequestWithBody("GET", fmt.Sprintf("%s%s", p.baseURL, url),nil, result)
+	return p.makeRequestWithBody("GET", fmt.Sprintf("%s%s", p.baseURL, url), nil, result)
 }
 
 func (p *PlugmanClient) makeRequestWithBody(method, url string, body interface{}, out interface{}) error {
