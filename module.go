@@ -28,6 +28,7 @@ type GraphNode struct {
 
 	// Properties that are common to all types of nodes
 	PackageID uuid.UUID `json:"package_id,omitempty" msgpack:"p,omitempty"`
+	Label string `json:"label" msgpack:"la"`
 
 	// Properties of a node that references functionality in a package
 	TypeID     *string `json:"type_id,omitempty" msgpack:"n,omitempty"`
@@ -47,6 +48,7 @@ type GraphNode struct {
 // CompiledGraphLink is the variant of link that lives in a compiled executable
 type GraphLink struct {
 	ID         uuid.UUID `json:"id" msgpack:"i"`
+	Label      string    `json:"label" msgpack:"la"`
 	PackageID  uuid.UUID `json:"package_id" msgpack:"p"`
 	TypeID     string    `json:"type_id" msgpack:"l"`
 	Version    string    `json:"version" msgpack:"v"`
@@ -103,6 +105,7 @@ type CompiledGraphModule struct {
 
 type GraphModule struct {
 	ID    uuid.UUID               `json:"id" msgpack:"i"`
+	Label string                  `json:"label" msgpack:"la"`
 	Nodes map[uuid.UUID]GraphNode `json:"nodes" msgpack:"n"`
 	Links []GraphLink             `json:"links" msgpack:"l"`
 }
