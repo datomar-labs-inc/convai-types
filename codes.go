@@ -7,4 +7,5 @@ const (
 	ErrHandlerFailure           = 515
 	ErrTemplateExecutionFailure = 516
 	ErrConfigUnmarshal          = 468
+	ErrInvalidConfig            = 469
 )

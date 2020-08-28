@@ -61,6 +61,10 @@ var StockNodeSetData = ctypes.DBNode{
 	Documentation: ``,
 }
 
+type DeleteDataConfig struct {
+	Paths []string `json:"paths"`
+}
+
 var StockNodeDeleteData = ctypes.DBNode{
 	Name:    "Delete Data",
 	TypeID:  "delete_data",
@@ -83,6 +87,14 @@ var StockNodeWebhook = ctypes.DBNode{
 
 	// TODO write documentation
 	Documentation: ``,
+}
+
+type HttpRequestConfig struct {
+	URL       string            `json:"url"`
+	Method    string            `json:"method"`
+	OutputKey string            `json:"output_key"`
+	Body      string            `json:"body"`
+	Headers   map[string]string `json:"headers"`
 }
 
 var StockNodeHTTPRequest = ctypes.DBNode{
