@@ -29,7 +29,23 @@ type Transformation struct {
 }
 
 func (t *Transformation) PathValid() bool {
-	parts := strings.Split(t.Path, ".")
+	return ValidateDataPath(t.Path)
+}
+
+func (t *Transformation) GetContextLevelName() string {
+	return GetDataPathContextLevelName(t.Path)
+}
+
+func (t *Transformation) GetMemoryContainerName() string {
+	return GetDataPathMemoryContainerName(t.Path)
+}
+
+func (t *Transformation) GetKey() string {
+	return GetDataPathKey(t.Path)
+}
+
+func ValidateDataPath(path string) bool {
+	parts := strings.Split(path, ".")
 
 	if len(parts) != 3 {
 		return false
@@ -50,14 +66,15 @@ func (t *Transformation) PathValid() bool {
 	return true
 }
 
-func (t *Transformation) GetContextLevelName() string {
-	return strings.TrimSpace(strings.Split(t.Path, ".")[0])
+func GetDataPathContextLevelName(path string) string {
+	return strings.TrimSpace(strings.Split(path, ".")[0])
 }
 
-func (t *Transformation) GetMemoryContainerName() string {
-	return strings.TrimSpace(strings.Split(t.Path, ".")[1])
+func GetDataPathMemoryContainerName(path string) string {
+	return strings.TrimSpace(strings.Split(path, ".")[1])
 }
 
-func (t *Transformation) GetKey() string {
-	return strings.TrimSpace(strings.Split(t.Path, ".")[2])
+func GetDataPathKey(path string) string {
+	return strings.TrimSpace(strings.Split(path, ".")[2])
 }
+

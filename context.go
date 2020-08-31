@@ -2,6 +2,8 @@ package ctypes
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
 
 	"github.com/google/uuid"
 
@@ -151,6 +153,67 @@ func (c *Context) AddChildContext(context *Context) *Context {
 	context.Parent = c
 	c.Children = append(c.Children, *context)
 	return c
+}
+
+func (c *Context) GetData(path string) (interface{}, bool) {
+	// Validate the path
+	if !ValidateDataPath(path) {
+		return nil, false
+	}
+
+	// Get the context
+	ctx, exists := c.GetContextByName(GetDataPathContextLevelName(path))
+	if !exists {
+		return nil, false
+	}
+
+	// Return the data
+	for _, mc := range ctx.Memory {
+		if mc.Name == GetDataPathMemoryContainerName(path) {
+			data, ok := mc.Data[GetDataPathKey(path)]
+
+			return data, ok
+		}
+	}
+
+	return nil, false
+}
+
+func (c *Context) GetDataString(path string) (string, bool) {
+	d, ok := c.GetData(path)
+	if !ok {
+		return "", false
+	}
+
+	return fmt.Sprintf("%v", d), true
+}
+
+func (c *Context) GetDataInt(path string) (int, bool) {
+	d, ok := c.GetData(path)
+	if !ok {
+		return 0, false
+	}
+
+	n, err := strconv.Atoi(fmt.Sprintf("%v", d))
+	if err != nil {
+		return 0, false
+	}
+
+	return n, true
+}
+
+func (c *Context) GetDataFloat(path string) (float64, bool) {
+	d, ok := c.GetData(path)
+	if !ok {
+		return 0, false
+	}
+
+	n, err := strconv.ParseFloat(fmt.Sprintf("%v", d), 64)
+	if err != nil {
+		return 0, false
+	}
+
+	return n, true
 }
 
 // WithTransformations returns a new context tree with transformations applied
