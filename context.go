@@ -48,9 +48,9 @@ type DBContextRef struct {
 
 // ContextTreeSlice is used to rectify a context tree. It is one piece of a context tree
 type ContextTreeSlice struct {
-	Name     string             `json:"name"`
-	Ref      *string            `json:"ref"` // Ref in this case is only one value because it's used to search
-	Children []ContextTreeSlice `json:"children"`
+	Name  string            `json:"name"`
+	Ref   *string           `json:"ref"` // Ref in this case is only one value because it's used to search
+	Child *ContextTreeSlice `json:"child"`
 }
 
 // Retrieve context from a tree slice by name
@@ -59,19 +59,11 @@ func (c ContextTreeSlice) GetContextByName(name string) (*ContextTreeSlice, bool
 		return &c, true
 	}
 
-	if len(c.Children) == 0 {
+	if c.Child == nil {
 		return nil, false
 	}
 
-	// Recursive style checking all the children
-	for _, cc := range c.Children {
-		nc, exists := cc.GetContextByName(name)
-		if exists {
-			return nc, exists
-		}
-	}
-
-	return nil, false
+	return c.Child.GetContextByName(name)
 }
 
 // Retrieve a context from a tree slice by Ref
@@ -82,19 +74,11 @@ func (c ContextTreeSlice) GetContextByRef(ref string) (*ContextTreeSlice, bool) 
 		}
 	}
 
-	if len(c.Children) == 0 {
+	if c.Child == nil {
 		return nil, false
 	}
 
-	// Recursive style checking all the children
-	for _, cc := range c.Children {
-		nc, exists := cc.GetContextByRef(ref)
-		if exists {
-			return nc, exists
-		}
-	}
-
-	return nil, false
+	return c.Child.GetContextByRef(ref)
 }
 
 // Retrieve context from a tree slice by name
@@ -417,7 +401,6 @@ func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
 	return v, false
 }
 
-
 // indexArg checks if a reflect.Value can be used as an index, and converts it to int if possible.
 func indexArg(index reflect.Value, cap int) (int, error) {
 	var x int64
@@ -436,7 +419,6 @@ func indexArg(index reflect.Value, cap int) (int, error) {
 	}
 	return int(x), nil
 }
-
 
 // prepareArg checks if value can be used as an argument of type argType, and
 // converts an invalid value to appropriate zero if possible.

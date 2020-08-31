@@ -9,8 +9,9 @@
 package deepcopy
 
 import (
-	"bytes"
 	"encoding/gob"
+	"encoding/json"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -21,18 +22,22 @@ func init() {
 }
 
 // Map performs a deep copy of the given map m.
-func DeepCopy(m map[string]interface{}) (map[string]interface{}, error) {
-	var buf bytes.Buffer
-	enc := gob.NewEncoder(&buf)
-	dec := gob.NewDecoder(&buf)
-	err := enc.Encode(m)
-	if err != nil {
-		return nil, err
+func DeepCopy(src interface{}) (map[string]interface{}, error) {
+	var dst map[string]interface{}
+
+	if src == nil {
+		return nil, fmt.Errorf("src cannot be nil")
 	}
-	var copy map[string]interface{}
-	err = dec.Decode(&copy)
+
+	jsb, err := json.Marshal(src)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Unable to marshal src: %s", err)
 	}
-	return copy, nil
+
+	err = json.Unmarshal(jsb, &dst)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to unmarshal into dst: %s", err)
+	}
+
+	return dst, nil
 }
