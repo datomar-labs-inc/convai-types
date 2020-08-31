@@ -11,10 +11,13 @@ package deepcopy
 import (
 	"bytes"
 	"encoding/gob"
+
+	"github.com/google/uuid"
 )
 
 func init() {
 	gob.Register(map[string]interface{}{})
+	gob.Register(uuid.UUID{})
 }
 
 // Map performs a deep copy of the given map m.

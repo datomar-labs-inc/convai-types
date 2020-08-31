@@ -4,12 +4,23 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 const (
 	OpSet = iota
 	OpDelete
 )
+
+type ExecutionResult struct {
+	ID         uuid.UUID     `json:"id"`
+	StartTime  time.Time     `json:"start_time"`
+	FinishTime time.Time     `json:"finish_time"`
+	Duration   time.Duration `json:"duration"`
+	Steps      []Step        `json:"steps"`
+}
 
 type Error struct {
 	Code    int    `json:"code"`
