@@ -1,9 +1,64 @@
 package ctypes
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 )
+
+var contextTestTree = Context{
+	Name: "environment",
+	Memory: []MemoryContainer{
+		{
+			Name:    "data",
+			Type:    MCTypeSession,
+			Exposed: false,
+			Data: Mem{
+				"sub": Mem{
+					"subfld": "woopah",
+				},
+			},
+		},
+	},
+	Children: []Context{
+		{
+			Name: "user_group",
+			Memory: []MemoryContainer{
+				{
+					Name:    "data",
+					Type:    MCTypeSession,
+					Exposed: false,
+					Data: Mem{
+						"str":      "heyo",
+						"numstr":   "98",
+						"num":      5,
+						"fl":       10.5,
+						"flstring": "5.89",
+					},
+				},
+			},
+			Children: []Context{
+				{
+					Name: "user",
+					Memory: []MemoryContainer{
+						{
+							Name:    "data",
+							Type:    MCTypeSession,
+							Exposed: false,
+							Data: Mem{
+								"str":      "heyo",
+								"numstr":   "98",
+								"num":      5,
+								"fl":       0.557,
+								"flstring": "5.89",
+							},
+						},
+					},
+				},
+			},
+		},
+	},
+}
 
 func TestContextTreeSlice_GetContextByName(t *testing.T) {
 	// User structure
@@ -170,49 +225,6 @@ func TestContextTreeSlice_GetContextByRef(t *testing.T) {
 }
 
 func TestContext_WithTransformations(t *testing.T) {
-	tree := Context{
-		Name: "environment",
-		Memory: []MemoryContainer{
-			{
-				Name:    "data",
-				Type:    MCTypeSession,
-				Exposed: false,
-				Data:    Mem{},
-			},
-		},
-		Children: []Context{
-			{
-				Name: "user_group",
-				Memory: []MemoryContainer{
-					{
-						Name:    "data",
-						Type:    MCTypeSession,
-						Exposed: false,
-						Data:    Mem{},
-					},
-				},
-				Children: []Context{
-					{
-						Name: "user",
-						Memory: []MemoryContainer{
-							{
-								Name:    "data",
-								Type:    MCTypeSession,
-								Exposed: false,
-								Data:    Mem{},
-							},
-						},
-						Children: []Context{
-							{
-								Name: "request",
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
 	badTransforms := []Transformation{
 		{
 			Path:      "user.data0  ff.test",
@@ -232,7 +244,7 @@ func TestContext_WithTransformations(t *testing.T) {
 		}
 	}
 
-	_, err := tree.WithTransformations(badTransforms)
+	_, err := contextTestTree.WithTransformations(badTransforms)
 	if err == nil || !strings.Contains(err.Error(), "invalid transformation path") {
 		t.Error("expected invalid transformation path error")
 		return
@@ -257,7 +269,7 @@ func TestContext_WithTransformations(t *testing.T) {
 		}
 	}
 
-	newTree, err := tree.WithTransformations(transforms)
+	newTree, err := contextTestTree.WithTransformations(transforms)
 	if err != nil {
 		t.Error(err)
 		return
@@ -273,5 +285,109 @@ func TestContext_WithTransformations(t *testing.T) {
 	if data, ok := userContext.Memory[0].Data["test"]; !ok || data != "woah there" {
 		t.Error("Data was not set correctly on user")
 		return
+	}
+}
+
+func TestContext_GetData(t *testing.T) {
+	// Data should not exist
+	d1, ok1 := contextTestTree.GetData("environment.data.test")
+	if ok1 != false || d1 != nil {
+		t.Error("expected environment.data.test to not exist, but it did")
+	}
+
+	// Data should exist
+	d2, ok2 := contextTestTree.GetData("user.data.str")
+	if !ok2 || d2 != "heyo" {
+		t.Error("expected user.data.str to equal heyo, but it did not")
+	}
+
+	// Data should exist and be a float
+	d3, ok3 := contextTestTree.GetData("user_group.data.fl")
+	if !ok3 || d3 != 10.5 {
+		t.Error("expected user_group.data.fl to equal 0.557 but it did not")
+	}
+}
+
+func TestContext_GetDataString(t *testing.T) {
+	// Data should not exist
+	d1, ok1 := contextTestTree.GetDataString("environment.data.test")
+	if ok1 != false || d1 != "" {
+		t.Error("expected environment.data.test to not exist, but it did")
+	}
+
+	// Data should exist
+	d2, ok2 := contextTestTree.GetDataString("user.data.str")
+	if !ok2 || d2 != "heyo" {
+		t.Error("expected user.data.str to equal heyo, but it did not")
+	}
+
+	// Data should exist and be a float
+	d3, ok3 := contextTestTree.GetDataString("user_group.data.fl")
+	if !ok3 || d3 != "10.5" {
+		t.Error("expected user_group.data.fl to equal 0.557 but it did not")
+	}
+
+	d4, ok4 := contextTestTree.GetDataString("environment.data.sub.subfld")
+	if !ok4 || d4 != "woopah" {
+		t.Error("expected environment.data.sub.subfld to equal woopah, but it did not")
+	}
+}
+
+func TestContext_ExecuteTemplateString(t *testing.T) {
+	tmpl, err := contextTestTree.ExecuteTemplateString("{{ environment.data.sub.subfld }}")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if tmpl != "woopah" {
+		t.Error("invalid evaluation, expected woopah, got", tmpl)
+	}
+
+	tmpl, err = contextTestTree.ExecuteTemplateString("{{ user_group.data.fl | divided_by: 2.0 }}")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if tmpl != "5.25" {
+		t.Error("invalid evaluation, expected 5.25, got", tmpl)
+	}
+}
+
+func TestContext_GetTemplateData(t *testing.T) {
+	d := contextTestTree.GetTemplateData()
+
+	expected := Mem{
+		"environment": Mem{
+			"data": Mem{
+				"sub": Mem{
+					"subfld": "woopah",
+				},
+			},
+		},
+		"user": Mem{
+			"data": Mem{
+				"str":      "heyo",
+				"numstr":   "98",
+				"num":      5,
+				"fl":       0.557,
+				"flstring": "5.89",
+			},
+		},
+		"user_group": Mem{
+			"data": Mem{
+				"str":      "heyo",
+				"numstr":   "98",
+				"num":      5,
+				"fl":       10.5,
+				"flstring": "5.89",
+			},
+		},
+	}
+
+	expJsb, _ := json.Marshal(expected)
+	gotJsb, _ := json.Marshal(d)
+
+	if string(expJsb) != string(gotJsb) {
+		t.Error("did not get expected values")
 	}
 }

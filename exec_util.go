@@ -47,7 +47,7 @@ func (t *Transformation) GetKey() string {
 func ValidateDataPath(path string) bool {
 	parts := strings.Split(path, ".")
 
-	if len(parts) != 3 {
+	if len(parts) < 3 {
 		return false
 	}
 
@@ -75,6 +75,25 @@ func GetDataPathMemoryContainerName(path string) string {
 }
 
 func GetDataPathKey(path string) string {
-	return strings.TrimSpace(strings.Split(path, ".")[2])
+	key := ""
+
+	parts := strings.Split(path, ".")[2:]
+
+	for i, str := range parts {
+		key += strings.TrimSpace(str)
+
+		if i != len(parts)-1 {
+			key += "."
+		}
+	}
+
+	return key
 }
 
+func DataPathHasMultipartKey(path string) bool {
+	return len(GetDataPathKeyParts(path)) > 1
+}
+
+func GetDataPathKeyParts(path string) []string {
+	return strings.Split(path, ".")[2:]
+}
