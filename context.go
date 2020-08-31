@@ -33,6 +33,7 @@ type DBContext struct {
 	ID               uuid.UUID          `db:"id" json:"id"`
 	ParentID         *uuid.UUID         `db:"parent_id,omitempty" json:"parent_id,omitempty"`
 	Name             string             `db:"name" json:"name"`
+	EnvironmentID    uuid.UUID          `db:"environment_id" json:"environment_id"`
 	MemoryContainers DBMemoryContainers `db:"memory_containers" json:"memory_containers"`
 
 	// The ref property is not present on the contexts table, but is frequently queried with it

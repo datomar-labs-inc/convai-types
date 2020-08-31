@@ -58,4 +58,3 @@ var (
 	_ driver.Valuer = &DBMemoryContainers{}
 	_ sql.Scanner   = &DBMemoryContainers{}
 )
-
