@@ -3,16 +3,48 @@ package ctypes
 import (
 	"database/sql"
 	"database/sql/driver"
+	"fmt"
 
 	"upper.io/db.v3/postgresql"
 )
 
 type Mem map[string]interface{}
 
+func (m Mem) ToTransformationsPrefixed(pathPrefix string) (trs []Transformation) {
+	for k, v := range m {
+		trs = append(trs, Transformation{
+			Path:      fmt.Sprintf("%s.%s", pathPrefix, k),
+			Value:     v,
+			Operation: OpSet,
+		})
+	}
+
+	return
+}
+
+func (m Mem) ToTransformations() (trs []Transformation) {
+	return m.ToTransformationsPrefixed("context.container")
+}
+
+func (m Mem) Transform(transformation ...Transformation) Mem {
+	for _, t := range transformation {
+		switch t.Operation {
+		case OpSet:
+			m[t.GetKey()] = t.Value
+		case OpDelete:
+			delete(m, t.GetKey())
+		}
+	}
+
+	return m
+}
+
 const (
-	MCTypeExecution = iota
-	MCTypeSession
-	MCTypeContext
+	MCTypeExecution = iota // Execution type memory can be modified, and is only stored in the execution log
+	MCTypeSession          // Session type memory can be modified, and is stored in redis
+	MCTypeContext          // Context type memory can be modified, and is stored in mongo
+	MCTypeReadOnly         // ReadOnly type memory cannot be modified, and is only stored in the execution log
+	MCTypeSecure           // Secure type memory can be modified, and is stored in the vault
 )
 
 type MemoryContainer struct {
@@ -35,12 +67,14 @@ func (m *MemoryContainer) Put(key string, value interface{}) *MemoryContainer {
 	return m
 }
 
-func (m *MemoryContainer) Transform(transformation Transformation) *MemoryContainer {
-	switch transformation.Operation {
-	case OpSet:
-		m.Data[transformation.GetKey()] = transformation.Value
-	case OpDelete:
-		delete(m.Data, transformation.GetKey())
+func (m *MemoryContainer) Transform(transformation ...Transformation) *MemoryContainer {
+	// If this memory container is not allowed to be modified, do not modify it
+	if m.Type == MCTypeReadOnly {
+		return m
+	}
+
+	for _, t := range transformation {
+		m.Data = m.Data.Transform(t)
 	}
 
 	return m
