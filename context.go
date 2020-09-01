@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/osteele/liquid"
@@ -29,6 +30,82 @@ type Context struct {
 	Children []Context `json:"-"`
 }
 
+// Walk will take a "tree" of contexts (where each branch only has one child) and call a method once per level
+func (c *Context) Walk(executor func(c *Context) (cont bool, err error)) error {
+	cont, err := executor(c)
+	if err != nil {
+		return err
+	}
+
+	if !cont {
+		return nil
+	}
+
+	if len(c.Children) > 0 {
+		return c.Children[0].Walk(executor)
+	}
+
+	return nil
+}
+
+// FlattenTree will take a "tree" of contexts (where each branch only has one child) and turn it into an array
+func (c *Context) FlattenTree() (res []*Context) {
+	_ = c.Walk(func(c *Context) (cont bool, err error) {
+		res = append(res, c)
+		return true, nil
+	})
+
+	return
+}
+
+func (c *Context) CopyFrom(dbCtx *DBContext) (filledParent bool) {
+	c.ID = dbCtx.ID
+	c.Name = dbCtx.Name
+
+	// Update all children's parentID
+	for i, child := range c.Children {
+		child.ParentID = c.ID
+		c.Children[i] = child
+	}
+
+	if dbCtx.Ref != nil {
+		c.Ref = dbCtx.Refs()
+	}
+
+	for _, mc := range dbCtx.MemoryContainers {
+		c.Memory = append(c.Memory, MemoryContainer{
+			Name:    mc.Name,
+			Type:    mc.Type,
+			Exposed: mc.Exposed,
+			Data:    nil,
+		})
+	}
+
+	if dbCtx.ParentID != nil {
+		c.ParentID = *dbCtx.ParentID
+
+		// Check if the tree can have it's parent updated
+		if c.Parent != nil && c.Parent.ID != c.ParentID {
+			c.Parent.ID = c.ParentID
+			filledParent = true // Filled parent is set to true to signal that the parent's id was updated, but nothing else
+		}
+	}
+
+	return
+}
+
+func (c *Context) ToDBMemory() (mem DBMemoryContainers) {
+	for _, m := range c.Memory {
+		mem = append(mem, DBMemoryContainer{
+			Name:    m.Name,
+			Type:    m.Type,
+			Exposed: m.Exposed,
+		})
+	}
+
+	return
+}
+
 type DBContext struct {
 	ID               uuid.UUID          `db:"id" json:"id"`
 	ParentID         *uuid.UUID         `db:"parent_id,omitempty" json:"parent_id,omitempty"`
@@ -40,6 +117,14 @@ type DBContext struct {
 	Ref *string `db:"ref,omitempty" json:"ref,omitempty"`
 
 	Children []DBContext `db:"-" json:"children,omitempty"`
+}
+
+func (d *DBContext) Refs() []string {
+	if d.Ref != nil {
+		return strings.Split(*d.Ref, ",")
+	}
+
+	return nil
 }
 
 type DBContextRef struct {
@@ -128,11 +213,33 @@ func (c *Context) GetContextByRef(ref string) (*Context, bool) {
 	return nil, false
 }
 
+// Retrieve a context from a tree slice by Ref
+func (c *Context) GetContextByID(id uuid.UUID) (*Context, bool) {
+	if c.ID == id {
+		return c, true
+	}
+
+	if len(c.Children) == 0 {
+		return nil, false
+	}
+
+	// Recursive style checking all the children
+	for _, cc := range c.Children {
+		nc, exists := cc.GetContextByID(id)
+		if exists {
+			return nc, exists
+		}
+	}
+
+	return nil, false
+}
+
+
 // GetLastTreeItem returns the deepest child context in the tree.
 // Note, this only works when each context has 0 or 1 children
 func (c *Context) GetLastTreeItem() *Context {
 	if len(c.Children) > 0 {
-		return c.GetLastTreeItem()
+		return c.Children[0].GetLastTreeItem()
 	}
 
 	return c
