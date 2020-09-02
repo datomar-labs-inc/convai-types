@@ -9,7 +9,7 @@ import (
 )
 
 type DBLink struct {
-	TypeID        string    `db:"id" json:"id"`
+	TypeID        string    `db:"id" json:"type_id"`
 	PackageID     uuid.UUID `db:"package_id" json:"package_id"`
 	Version       string    `db:"version" json:"version"`
 	Name          string    `db:"name" json:"name"`

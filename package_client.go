@@ -17,10 +17,10 @@ import (
 // PackageClient is used to make requests to packages
 type PackageClient struct {
 	client http.Client
-	pkg    *Package
+	pkg    *DBPackage
 }
 
-func NewPackageClient(pkg *Package) *PackageClient {
+func NewPackageClient(pkg *DBPackage) *PackageClient {
 	return &PackageClient{
 		pkg: pkg,
 		client: http.Client{
@@ -44,11 +44,6 @@ func (p *PackageClient) FetchManifest() (*Package, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	p.pkg.Dispatches = result.Dispatches
-	p.pkg.Links = result.Links
-	p.pkg.Nodes = result.Nodes
-	p.pkg.Events = result.Events
 
 	return &result, nil
 }

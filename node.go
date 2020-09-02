@@ -9,9 +9,9 @@ import (
 )
 
 type DBNode struct {
-	TypeID        string    `db:"id" json:"id"`
+	TypeID        string    `db:"id" json:"type_id"`
 	PackageID     uuid.UUID `db:"package_id" json:"package_id"`
-	Version       string    `db:"verison" json:"version"`
+	Version       string    `db:"version" json:"version"`
 	Name          string    `db:"name" json:"name"`
 	Documentation string    `db:"docs" json:"docs"`
 	Style         NodeStyle `db:"style" json:"style"`

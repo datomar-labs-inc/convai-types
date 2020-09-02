@@ -10,15 +10,9 @@ import (
 // TODO right now these tests require manually running an instance of datomar-labs-inc/convai-package-template on port 5555
 
 func newPackageClient() *PackageClient {
-	return NewPackageClient(&Package{
-		DBPackage: DBPackage{
-			BaseURL:    "http://localhost:5555",
-			SigningKey: "bubbles",
-		},
-		Nodes:      nil,
-		Links:      nil,
-		Events:     nil,
-		Dispatches: nil,
+	return NewPackageClient(&DBPackage{
+		BaseURL:    "http://localhost:5555",
+		SigningKey: "bubbles",
 	})
 }
 
@@ -115,9 +109,9 @@ func TestPackageClient_ExecuteNode(t *testing.T) {
 	pc := newPackageClient()
 
 	res, err := pc.ExecuteNode(&NodeCall{
-		TypeID:          "example_node",
-		Version:         "0.0.1",
-		Config:          MemoryContainer{
+		TypeID:  "example_node",
+		Version: "0.0.1",
+		Config: MemoryContainer{
 			Data: Mem{
 				"config": `{"field_1":"value"}`,
 			},
@@ -137,9 +131,9 @@ func TestPackageClient_ExecuteNodeMock(t *testing.T) {
 	pc := newPackageClient()
 
 	res, err := pc.ExecuteNodeMock(&NodeCall{
-		TypeID:          "example_node",
-		Version:         "0.0.1",
-		Config:          MemoryContainer{
+		TypeID:  "example_node",
+		Version: "0.0.1",
+		Config: MemoryContainer{
 			Data: Mem{
 				"config": `{"field_1":"value"}`,
 			},

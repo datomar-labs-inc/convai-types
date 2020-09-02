@@ -5,10 +5,10 @@ import (
 )
 
 type DBDispatch struct {
-	ID        string    `db:"id" json:"id"`
-	PackageID uuid.UUID `db:"package_id" json:"package_id"`
-	Name      string    `db:"name" json:"name"`
-	Docs      string    `db:"docs" json:"docs"`
+	ID            string    `db:"id" json:"id"`
+	PackageID     uuid.UUID `db:"package_id" json:"package_id"`
+	Name          string    `db:"name" json:"name"`
+	Documentation string    `db:"docs" json:"docs"`
 }
 
 type DispatchRequest struct {
