@@ -90,11 +90,11 @@ var StockNodeWebhook = ctypes.DBNode{
 }
 
 type HttpRequestConfig struct {
-	URL       string            `json:"url"`
-	Method    string            `json:"method"`
-	OutputKey string            `json:"output_key"`
-	Body      string            `json:"body"`
-	Headers   map[string]string `json:"headers"`
+	URL        string            `json:"url"`
+	Method     string            `json:"method"`
+	OutputPath string            `json:"output_key"`
+	Body       string            `json:"body"`
+	Headers    map[string]string `json:"headers"`
 }
 
 var StockNodeHTTPRequest = ctypes.DBNode{
