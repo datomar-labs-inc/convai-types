@@ -9,7 +9,7 @@ import (
 )
 
 type DBNode struct {
-	TypeID        string    `db:"id" json:"type_id"`
+	TypeID        string    `db:"id" json:"type_id" validate:"required"`
 	PackageID     uuid.UUID `db:"package_id" json:"package_id"`
 	Version       string    `db:"version" json:"version"`
 	Name          string    `db:"name" json:"name"`
@@ -37,19 +37,19 @@ type CompiledGraphNode struct {
 }
 
 type NodeStyle struct {
-	Color string   `json:"color"` // Valid hex code color
-	Icons []string `json:"icons"` // File name (files will be served in a special format by the plugin)
+	Color string   `json:"color" validate:"hexcolor"` // Valid hex code color
+	Icons []string `json:"icons"`                     // File name (files will be served in a special format by the plugin)
 }
 
 // NodeCall is Convai requesting that a package perform a node execution and return the result
 type NodeCall struct {
-	RequestID       uuid.UUID         `json:"request_id"` // The TypeID of the current request
-	TypeID          string            `json:"type_id"`    // The TypeID of the node type, used by the plugin to determine which node
-	Version         string            `json:"version"`    // Which version of this node was this config created on
-	Config          MemoryContainer   `json:"config"`     // How this specific node was configured by the bot builder
-	PackageSettings MemoryContainer   `json:"package_settings"`
-	Memory          []MemoryContainer `json:"memory"`   // Any other memory containers that this package is allowed to see
-	Sequence        int               `json:"sequence"` // The number of nodes that have been executed during this execution
+	RequestID       uuid.UUID `json:"request_id"`       // The TypeID of the current request
+	TypeID          string    `json:"type_id"`          // The TypeID of the node type, used by the plugin to determine which node
+	Version         string    `json:"version"`          // Which version of this node was this config created on
+	Config          string    `json:"config"`           // How this specific node was configured by the bot builder (JSON format)
+	PackageSettings string    `json:"package_settings"` // Settings for this package (JSON format)
+	Tree            *Context   `json:"tree"`            // A context tree containing all data visible by the package
+	Sequence        int       `json:"sequence"`         // The number of nodes that have been executed during this execution
 }
 
 // NodeCallResult is what a package returns after executing a node

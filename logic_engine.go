@@ -29,6 +29,16 @@ type Step struct {
 	Duration time.Duration
 }
 
+func GetAllTransformations(steps []Step) (transformations []Transformation) {
+	for _, step := range steps {
+		if step.Node != nil && step.Node.Transformations != nil {
+			transformations = append(transformations, step.Node.Transformations...)
+		}
+	}
+
+	return
+}
+
 type NodeExecutionResult struct {
 	Transformations []Transformation `json:"transformations"`
 	Logs            []LogEntry       `json:"logs"`

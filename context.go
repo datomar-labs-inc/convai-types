@@ -27,7 +27,7 @@ type Context struct {
 
 	// References
 	Parent   *Context  `json:"-"`
-	Children []Context `json:"-"`
+	Children []Context `json:"children"`
 }
 
 // Walk will take a "tree" of contexts (where each branch only has one child) and call a method once per level
@@ -233,7 +233,6 @@ func (c *Context) GetContextByID(id uuid.UUID) (*Context, bool) {
 
 	return nil, false
 }
-
 
 // GetLastTreeItem returns the deepest child context in the tree.
 // Note, this only works when each context has 0 or 1 children

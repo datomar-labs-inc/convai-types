@@ -22,6 +22,10 @@ type ExecutionResult struct {
 	Steps      []Step        `json:"steps"`
 }
 
+func (s *ExecutionResult) AllTransformations() (transformations []Transformation) {
+	return GetAllTransformations(s.Steps)
+}
+
 type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`

@@ -9,6 +9,7 @@ import (
 type Executable struct {
 	Bot         CompiledBot `json:"bot"`
 	ContextTree Context     `json:"context_tree"`
+	Packages    []Package   `json:"packages"`
 }
 
 // ExecutionRequest is what the api will be called with when an execution should be performed

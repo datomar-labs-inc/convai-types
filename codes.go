@@ -10,4 +10,5 @@ const (
 	ErrInvalidConfig            = 469
 	ErrInvalidPath              = 470
 	ErrFailedToParseArgument    = 480
+	ErrFailedToCallPackage      = 481
 )
