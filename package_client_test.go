@@ -69,9 +69,9 @@ func TestPackageClient_ExecuteLink(t *testing.T) {
 			{
 				TypeID:          "example_link",
 				Version:         "0.0.1",
-				Config:          MemoryContainer{},
-				PackageSettings: MemoryContainer{},
-				Memory:          nil,
+				Config:          "{}",
+				PackageSettings: "{}",
+				Tree:            nil,
 				Sequence:        0,
 			},
 		},
@@ -91,9 +91,9 @@ func TestPackageClient_ExecuteLinkMock(t *testing.T) {
 			{
 				TypeID:          "example_link",
 				Version:         "0.0.1",
-				Config:          MemoryContainer{},
-				PackageSettings: MemoryContainer{},
-				Memory:          nil,
+				Config:          "{}",
+				PackageSettings: "{}",
+				Tree:            nil,
 				Sequence:        0,
 			},
 		},
@@ -109,15 +109,11 @@ func TestPackageClient_ExecuteNode(t *testing.T) {
 	pc := newPackageClient()
 
 	res, err := pc.ExecuteNode(&NodeCall{
-		TypeID:  "example_node",
-		Version: "0.0.1",
-		Config: MemoryContainer{
-			Data: Mem{
-				"config": `{"field_1":"value"}`,
-			},
-		},
-		PackageSettings: MemoryContainer{},
-		Memory:          nil,
+		TypeID:          "example_node",
+		Version:         "0.0.1",
+		Config:          `{"field_1":"value"}`,
+		PackageSettings: "{}",
+		Tree:            nil,
 		Sequence:        0,
 	})
 	if err != nil {
@@ -131,15 +127,11 @@ func TestPackageClient_ExecuteNodeMock(t *testing.T) {
 	pc := newPackageClient()
 
 	res, err := pc.ExecuteNodeMock(&NodeCall{
-		TypeID:  "example_node",
-		Version: "0.0.1",
-		Config: MemoryContainer{
-			Data: Mem{
-				"config": `{"field_1":"value"}`,
-			},
-		},
-		PackageSettings: MemoryContainer{},
-		Memory:          nil,
+		TypeID:          "example_node",
+		Version:         "0.0.1",
+		Config:          `{"field_1":"value"}`,
+		PackageSettings: "{}",
+		Tree:            nil,
 		Sequence:        0,
 	})
 	if err != nil {

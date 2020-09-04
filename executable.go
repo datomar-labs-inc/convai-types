@@ -20,5 +20,4 @@ type ExecutionRequest struct {
 	Text             string           `json:"text"`
 	DefaultDispatch  *string          `json:"default_dispatch,omitempty"`
 	Transformations  []Transformation `json:"transformations"`
-	ContextTreeSlice ContextTreeSlice `json:"context_tree_slice"`
 }

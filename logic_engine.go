@@ -24,9 +24,9 @@ type Frame struct {
 }
 
 type Step struct {
-	Node     *NodeExecutionResult
-	Links    map[uuid.UUID]LinkEvaluationResult
-	Duration time.Duration
+	Node     *NodeExecutionResult               `json:"node"`
+	Links    map[uuid.UUID]LinkEvaluationResult `json:"links"`
+	Duration time.Duration                      `json:"duration"`
 }
 
 func GetAllTransformations(steps []Step) (transformations []Transformation) {
@@ -57,5 +57,5 @@ type LinkEvaluationResult struct {
 	Logs     []LogEntry        `json:"logs"`
 	Errors   []Error           `json:"errors"`
 	Passable bool              `json:"passable"` // Can the execution of this module proceed down this link
-	Link     CompiledGraphLink `json:"link"`
+	Link     CompiledGraphLink `json:"-"`
 }
