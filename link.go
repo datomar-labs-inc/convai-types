@@ -44,13 +44,13 @@ type PackageLink struct {
 
 // LinkCall is Convai requesting that a package perform a link execution and return the result
 type LinkCall struct {
-	RequestID       uuid.UUID         `json:"request_id"` // The id of the current request
-	TypeID          string            `json:"type_id"`    // The TypeID of the link type, used by the plugin to determine which link should be executed
-	Version         string            `json:"version"`    // Which version of this link was this config created on
-	Config          MemoryContainer   `json:"config"`     // How this specific link was configured by the bot builder
-	PackageSettings MemoryContainer   `json:"package_settings"`
-	Memory          []MemoryContainer `json:"memory"`   // Any other memory containers that this package is allowed to see
-	Sequence        int               `json:"sequence"` // The number of links that have been executed during this execution
+	RequestID       uuid.UUID `json:"request_id"`       // The id of the current request
+	TypeID          string    `json:"type_id"`          // The TypeID of the link type, used by the plugin to determine which link should be executed
+	Version         string    `json:"version"`          // Which version of this link was this config created on
+	Config          string    `json:"config"`           // How this specific link was configured by the bot builder (JSON format)
+	PackageSettings string    `json:"package_settings"` // Package specific settings (JSON format)
+	Tree            *Context  `json:"tree"`             // A context tree with all fields the package is allowed to see
+	Sequence        int       `json:"sequence"`         // The number of links that have been executed during this execution
 }
 
 // LinkCallResult is what a package returns after executing a link

@@ -11,4 +11,5 @@ const (
 	ErrInvalidPath              = 470
 	ErrFailedToParseArgument    = 480
 	ErrFailedToCallPackage      = 481
+	ErrPackageMissingLink       = 482
 )
