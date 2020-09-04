@@ -19,15 +19,28 @@ var liquidEngine *liquid.Engine
 
 // Context is the actual data format for a context, NOT DATABASE FRIENDLY
 type Context struct {
-	Name     string            `json:"name"`
-	ID       uuid.UUID         `json:"id"`
-	ParentID uuid.UUID         `json:"parent_id"`
-	Ref      []string          `json:"ref"` // Maps to a ref table in the database, will be unpacked/queried into a slice
-	Memory   []MemoryContainer `json:"memory"`
+	Name          string            `json:"name"`
+	ID            uuid.UUID         `json:"id"`
+	ParentID      uuid.UUID         `json:"parent_id"`
+	Ref           []string          `json:"ref"` // Maps to a ref table in the database, will be unpacked/queried into a slice
+	Memory        []MemoryContainer `json:"memory"`
+	EnvironmentID uuid.UUID         `json:"environment_id"`
 
 	// References
 	Parent   *Context  `json:"-"`
 	Children []Context `json:"children"`
+}
+
+// IDPath returns a groove friendly id path for the context
+func (c *Context) IDPath() string {
+	id := ""
+
+	_ = c.Walk(func(c *Context) (cont bool, err error) {
+		id += c.ID.String() + "."
+		return true, nil
+	})
+
+	return strings.TrimSuffix(id, ".")
 }
 
 // Walk will take a "tree" of contexts (where each branch only has one child) and call a method once per level
@@ -61,6 +74,7 @@ func (c *Context) FlattenTree() (res []*Context) {
 func (c *Context) CopyFrom(dbCtx *DBContext) (filledParent bool) {
 	c.ID = dbCtx.ID
 	c.Name = dbCtx.Name
+	c.EnvironmentID = dbCtx.EnvironmentID
 
 	// Update all children's parentID
 	for i, child := range c.Children {

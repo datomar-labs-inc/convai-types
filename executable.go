@@ -14,10 +14,17 @@ type Executable struct {
 
 // ExecutionRequest is what the api will be called with when an execution should be performed
 type ExecutionRequest struct {
-	ID               uuid.UUID        `json:"id"`
-	Event            string           `json:"event"`
-	Mock             bool             `json:"mock"`
-	Text             string           `json:"text"`
-	DefaultDispatch  *string          `json:"default_dispatch,omitempty"`
-	Transformations  []Transformation `json:"transformations"`
+	ID              uuid.UUID         `json:"id"`
+	Event           string            `json:"event"`
+	Mock            bool              `json:"mock"`
+	Text            string            `json:"text"`
+	DefaultDispatch *string           `json:"default_dispatch,omitempty"`
+	Tree            *ContextTreeSlice `json:"tree"`
+	Transformations []Transformation  `json:"transformations"`
+}
+
+// ExecutionQueueItem is an execution that has been analyzed and is ready to be placed in the queue
+type ExecutionQueueItem struct {
+	Request     *ExecutionRequest `json:"request"`
+	PartialTree *Context          `json:"partial_tree"` // A partially constructed tree (has no memory)
 }

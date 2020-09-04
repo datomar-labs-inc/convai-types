@@ -2,12 +2,22 @@ package ctypes
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/google/uuid"
+)
+
+var (
+	envID       = uuid.Must(uuid.NewRandom())
+	userGroupID = uuid.Must(uuid.NewRandom())
+	userID      = uuid.Must(uuid.NewRandom())
 )
 
 var contextTestTree = Context{
 	Name: "environment",
+	ID:   envID,
 	Memory: []MemoryContainer{
 		{
 			Name:    "data",
@@ -23,6 +33,7 @@ var contextTestTree = Context{
 	Children: []Context{
 		{
 			Name: "user_group",
+			ID:   userGroupID,
 			Memory: []MemoryContainer{
 				{
 					Name:    "data",
@@ -40,6 +51,7 @@ var contextTestTree = Context{
 			Children: []Context{
 				{
 					Name: "user",
+					ID:   userID,
 					Memory: []MemoryContainer{
 						{
 							Name:    "data",
@@ -137,7 +149,6 @@ func TestContextTreeSlice_GetContextByRef(t *testing.T) {
 			},
 		},
 	}
-
 
 	/*
 	* Check first level hierarchy
@@ -344,5 +355,13 @@ func TestContext_GetTemplateData(t *testing.T) {
 
 	if string(expJsb) != string(gotJsb) {
 		t.Error("did not get expected values")
+	}
+}
+
+func TestContext_IDPath(t *testing.T) {
+	idPath := contextTestTree.IDPath()
+
+	if idPath != fmt.Sprintf("%s.%s.%s", envID.String(), userGroupID.String(), userID.String()) {
+		t.Error("id path invalid")
 	}
 }
