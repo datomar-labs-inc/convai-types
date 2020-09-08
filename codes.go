@@ -14,4 +14,5 @@ const (
 	ErrFailedToParseArgument    = 480
 	ErrFailedToCallPackage      = 481
 	ErrPackageMissingLink       = 482
+	ErrInsufficientPermissions  = 855
 )

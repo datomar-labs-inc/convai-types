@@ -7,6 +7,10 @@ import (
 	"upper.io/db.v3"
 )
 
+var (
+	InsufficientPermissions = &APIError{Code: ErrDatabaseIssue, Message: "Insufficient permissions to perform this action", statusCode: http.StatusUnauthorized}
+)
+
 func DatabaseError(err error) *APIError {
 	apiErr := &APIError{}
 

@@ -1,12 +1,13 @@
 package ctypes
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/opentracing-contrib/go-zap/log"
+	"go.uber.org/zap"
 )
 
 const (
@@ -87,7 +88,7 @@ func ValidateDataPath(path string) bool {
 	for _, p := range parts {
 		matched, err := regexp.MatchString("^[a-zA-Z_$@\\-]{1}[a-zA-Z_$@\\-0-9]+$", p)
 		if err != nil {
-			fmt.Println("Failed to regex", err.Error())
+			log.Error("failed to match string regex while validating data path", zap.Error(err))
 			return false
 		}
 
