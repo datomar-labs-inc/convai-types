@@ -2,6 +2,8 @@ package ctypes
 
 // API Error Codes
 const (
+	ErrResourceNotFound         = 404
+	ErrDatabaseIssue            = 405
 	ErrDispatchUnmarshal        = 466
 	ErrDispatchNotFound         = 467
 	ErrHandlerFailure           = 515

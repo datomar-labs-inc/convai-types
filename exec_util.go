@@ -15,15 +15,33 @@ const (
 )
 
 type ExecutionResult struct {
-	ID         uuid.UUID     `json:"id"`
-	StartTime  time.Time     `json:"start_time"`
-	FinishTime time.Time     `json:"finish_time"`
-	Duration   time.Duration `json:"duration"`
-	Steps      []Step        `json:"steps"`
+	ID             uuid.UUID     `json:"id"`
+	EnvironmentID  uuid.UUID     `json:"environment_id"`
+	BotID          uuid.UUID     `json:"bot_id"`
+	StartTime      time.Time     `json:"start_time"`
+	FinishTime     time.Time     `json:"finish_time"`
+	Duration       time.Duration `json:"duration"`
+	InitialContext *Context      `json:"initial_context"`
+	Steps          []Step        `json:"steps"`
 }
 
 func (s *ExecutionResult) AllTransformations() (transformations []Transformation) {
 	return GetAllTransformations(s.Steps)
+}
+
+// Mongoify will return a version of an ExecutionResult with an _id field to override Mongo's default _id field
+// Returns a new struct with a MongoID field. It looks all weird because the struct is being defined inline
+func (s *ExecutionResult) Mongoify() *struct {
+	MongoID uuid.UUID `json:"_id"`
+	*ExecutionResult
+} {
+	return &struct {
+		MongoID uuid.UUID `json:"_id"`
+		*ExecutionResult
+	}{
+		MongoID:         s.ID,
+		ExecutionResult: s,
+	}
 }
 
 type Error struct {

@@ -18,6 +18,10 @@ type DBBot struct {
 	UpdatedAt         *time.Time        `db:"updated_at,omitempty" json:"updated_at"`
 }
 
+type CreateBotRequest struct {
+	Name string `json:"name" validate:"required,max=35,min=2"`
+}
+
 type InstalledPackages struct {
 	Packages []InstalledPackage `json:"package_ids"`
 }
