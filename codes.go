@@ -4,6 +4,7 @@ package ctypes
 const (
 	ErrResourceNotFound         = 404
 	ErrDatabaseIssue            = 405
+	ErrRedisFailure             = 406
 	ErrDispatchUnmarshal        = 466
 	ErrDispatchNotFound         = 467
 	ErrHandlerFailure           = 515

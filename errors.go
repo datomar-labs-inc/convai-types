@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	InsufficientPermissions = &APIError{Code: ErrDatabaseIssue, Message: "Insufficient permissions to perform this action", statusCode: http.StatusUnauthorized}
+	InsufficientPermissions = &APIError{Code: ErrInsufficientPermissions, Message: "Insufficient permissions to perform this action", statusCode: http.StatusUnauthorized}
+	RedisFailure            = &APIError{Code: ErrRedisFailure, Message: "Something went wrong", statusCode: http.StatusInternalServerError}
 )
 
 func DatabaseError(err error) *APIError {
