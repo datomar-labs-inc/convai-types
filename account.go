@@ -1,9 +1,12 @@
 package ctypes
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"time"
 
 	"github.com/google/uuid"
+	"upper.io/db.v3/postgresql"
 )
 
 type DBAccount struct {
@@ -16,3 +19,45 @@ type DBAccount struct {
 	CreatedAt   *time.Time `db:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt   *time.Time `db:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
+
+type DBOrganizationAccount struct {
+	AccountID      uuid.UUID `db:"account_id" json:"account_id"`
+	OrganizationID uuid.UUID `db:"organization_id" json:"organization_id"`
+	Permissions    int       `db:"permissions" json:"permissions"`
+}
+
+type DBOrganizationAccounts []DBOrganizationAccount
+
+func (g DBOrganizationAccounts) Value() (driver.Value, error) {
+	return postgresql.EncodeJSONB(g)
+}
+
+func (g *DBOrganizationAccounts) Scan(src interface{}) error {
+	return postgresql.DecodeJSONB(g, src)
+}
+
+type DBBotAccount struct {
+	AccountID   uuid.UUID `db:"account_id" json:"account_id"`
+	BotID       uuid.UUID `db:"bot_id" json:"bot_id"`
+	Permissions int       `db:"permissions" json:"permissions"`
+}
+
+type DBBotAccounts []DBBotAccount
+
+func (g DBBotAccounts) Value() (driver.Value, error) {
+	return postgresql.EncodeJSONB(g)
+}
+
+func (g *DBBotAccounts) Scan(src interface{}) error {
+	return postgresql.DecodeJSONB(g, src)
+}
+
+var (
+	_ driver.Valuer = &DBBotAccounts{}
+	_ sql.Scanner   = &DBBotAccounts{}
+)
+
+var (
+	_ driver.Valuer = &DBOrganizationAccounts{}
+	_ sql.Scanner   = &DBOrganizationAccounts{}
+)

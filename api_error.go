@@ -49,6 +49,10 @@ func (e *APIError) RespondGin(c *gin.Context) {
 	c.JSON(e.statusCode, e)
 }
 
+func (e *APIError) AbortGin(c *gin.Context) {
+	c.AbortWithStatusJSON(e.statusCode, e)
+}
+
 type IAPIError interface {
 	HTTPStatusCode() int
 	JSONResponse() *APIError
