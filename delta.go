@@ -1,8 +1,11 @@
 package ctypes
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"errors"
 	"time"
+	"upper.io/db.v3/postgresql"
 
 	"github.com/google/uuid"
 )
@@ -28,14 +31,29 @@ const (
 	DOUpdateBot
 )
 
-// TODO make db types
 type DBDelta struct {
-	ID          uuid.UUID `db:"id" json:"id"`
-	AccountID   uuid.UUID
-	Operations  []DeltaOperation
-	BlueprintID uuid.UUID
-	CreatedAt   *time.Time
+	ID          uuid.UUID       `db:"id" json:"id"`
+	AccountID   uuid.UUID       `db:"account_id" json:"account_id"`
+	UpdateType  int             `db:"update_type" json:"update_type"`
+	Operations  DeltaOperations `db:"delta" json:"delta"`
+	BlueprintID uuid.UUID       `db:"blueprint_id" json:"blueprint_id"`
+	CreatedAt   *time.Time      `db:"created_at,omitempty" json:"created_at,omitempty"`
 }
+
+type DeltaOperations []DeltaOperation
+
+func (g DeltaOperations) Value() (driver.Value, error) {
+	return postgresql.EncodeJSONB(g)
+}
+
+func (g *DeltaOperations) Scan(src interface{}) error {
+	return postgresql.DecodeJSONB(g, src)
+}
+
+var (
+	_ driver.Valuer = &DeltaOperations{}
+	_ sql.Scanner   = &DeltaOperations{}
+)
 
 type DeltaOperation struct {
 	ModuleID uuid.UUID `json:"module_id"`

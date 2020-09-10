@@ -16,4 +16,8 @@ const (
 	ErrFailedToCallPackage      = 481
 	ErrPackageMissingLink       = 482
 	ErrInsufficientPermissions  = 855
+	ErrMissingOrgHeader         = 901
+	ErrMissingBotHeader         = 902
+	ErrMissingEnvHeader         = 903
+	ErrInvalidHeaderFormat      = 904
 )
