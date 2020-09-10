@@ -5,9 +5,17 @@ import (
 	"database/sql/driver"
 	"errors"
 	"time"
+
 	"upper.io/db.v3/postgresql"
 
 	"github.com/google/uuid"
+)
+
+const (
+	UpdateTypeStandard = iota
+	UpdateTypeUndo
+	UpdateTypeRollback
+	UpdateTypeRedo
 )
 
 const (
