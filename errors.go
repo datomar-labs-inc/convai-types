@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"upper.io/db.v3"
 )
 
@@ -15,6 +16,37 @@ var (
 	InsufficientPermissions     = &APIError{Code: ErrInsufficientPermissions, Message: "Insufficient permissions to perform this action", statusCode: http.StatusUnauthorized}
 	RedisFailure                = &APIError{Code: ErrRedisFailure, Message: "Something went wrong", statusCode: http.StatusInternalServerError}
 )
+
+type FieldError struct {
+	Tag       string      `json:"tag"`
+	ActualTag string      `json:"actual_tag"`
+	Namespace string      `json:"namespace"`
+	Field     string      `json:"field"`
+	Value     interface{} `json:"value"`
+}
+
+// InputValidationError should be called with errors from the `validator` package only
+func InputValidationError(err error) *APIError {
+	errs := err.(validator.ValidationErrors)
+
+	var errList []FieldError
+
+	for _, e := range errs {
+		errList = append(errList, FieldError{
+			Tag:       e.Tag(),
+			ActualTag: e.ActualTag(),
+			Namespace: e.Namespace(),
+			Field:     e.Field(),
+			Value:     e.Value(),
+		})
+	}
+
+	return &APIError{
+		Code:    ErrInputValidation,
+		Message: err.Error(),
+		Data:    errList,
+	}
+}
 
 func DatabaseError(err error) *APIError {
 	apiErr := &APIError{}

@@ -3,6 +3,7 @@ package ctypes
 // API Error Codes
 const (
 	ErrResourceNotFound         = 404
+	ErrInputValidation          = 501
 	ErrDatabaseIssue            = 405
 	ErrRedisFailure             = 406
 	ErrDispatchUnmarshal        = 466
