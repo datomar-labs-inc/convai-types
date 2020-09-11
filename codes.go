@@ -6,6 +6,8 @@ const (
 	ErrInputValidation          = 501
 	ErrDatabaseIssue            = 405
 	ErrRedisFailure             = 406
+	ErrGrooveFailure            = 407
+	ErrNotAuthenticated         = 408
 	ErrDispatchUnmarshal        = 466
 	ErrDispatchNotFound         = 467
 	ErrHandlerFailure           = 515

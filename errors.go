@@ -9,12 +9,14 @@ import (
 )
 
 var (
+	NotAuthenticatedError       = &APIError{Code: ErrNotAuthenticated, Message: "Cannot perform action without being authenticated", statusCode: http.StatusUnauthorized}
 	InvalidHeaderFormat         = &APIError{Code: ErrInvalidHeaderFormat, Message: "A header was supplied with an invalid format", statusCode: http.StatusBadRequest}
-	MissingEnvironmentIDHeader  = &APIError{Code: ErrMissingEnvHeader, Message: "The X-Environment-ID header must be present", statusCode: http.StatusUnauthorized}
-	MissingBotIDHeader          = &APIError{Code: ErrMissingBotHeader, Message: "The X-Bot-ID header must be present", statusCode: http.StatusUnauthorized}
-	MissingOrganizationIDHeader = &APIError{Code: ErrMissingOrgHeader, Message: "The X-Organization-ID header must be present", statusCode: http.StatusUnauthorized}
-	InsufficientPermissions     = &APIError{Code: ErrInsufficientPermissions, Message: "Insufficient permissions to perform this action", statusCode: http.StatusUnauthorized}
+	MissingEnvironmentIDHeader  = &APIError{Code: ErrMissingEnvHeader, Message: "The X-Environment-ID header must be present", statusCode: http.StatusForbidden}
+	MissingBotIDHeader          = &APIError{Code: ErrMissingBotHeader, Message: "The X-Bot-ID header must be present", statusCode: http.StatusForbidden}
+	MissingOrganizationIDHeader = &APIError{Code: ErrMissingOrgHeader, Message: "The X-Organization-ID header must be present", statusCode: http.StatusForbidden}
+	InsufficientPermissions     = &APIError{Code: ErrInsufficientPermissions, Message: "Insufficient permissions to perform this action", statusCode: http.StatusForbidden}
 	RedisFailure                = &APIError{Code: ErrRedisFailure, Message: "Something went wrong", statusCode: http.StatusInternalServerError}
+	GrooveFailure               = &APIError{Code: ErrGrooveFailure, Message: "Something went wrong", statusCode: http.StatusInternalServerError}
 )
 
 type FieldError struct {
