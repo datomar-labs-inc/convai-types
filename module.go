@@ -143,14 +143,14 @@ func (m *GraphModule) Validate() error {
 	return nil
 }
 
-func (m *GraphModule) GetLink(id uuid.UUID) *GraphLink {
-	for _, l := range m.Links {
+func (m *GraphModule) GetLink(id uuid.UUID) (*GraphLink, int) {
+	for i, l := range m.Links {
 		if l.ID == id {
-			return &l
+			return &l, i
 		}
 	}
 
-	return nil
+	return nil, 0
 }
 
 func (m *GraphModule) DeleteLink(id uuid.UUID) {
