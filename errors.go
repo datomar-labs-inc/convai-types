@@ -9,6 +9,8 @@ import (
 )
 
 var (
+	NotFoundError               = &APIError{Code: ErrResourceNotFound, Message: "Resource not found", statusCode: http.StatusNotFound}
+	InvalidTokenError           = &APIError{Code: ErrInvalidToken, Message: "Invalid authentication token", statusCode: http.StatusUnauthorized}
 	NotAuthenticatedError       = &APIError{Code: ErrNotAuthenticated, Message: "Cannot perform action without being authenticated", statusCode: http.StatusUnauthorized}
 	InvalidHeaderFormat         = &APIError{Code: ErrInvalidHeaderFormat, Message: "A header was supplied with an invalid format", statusCode: http.StatusBadRequest}
 	MissingEnvironmentIDHeader  = &APIError{Code: ErrMissingEnvHeader, Message: "The X-Environment-ID header must be present", statusCode: http.StatusForbidden}
@@ -29,9 +31,16 @@ type FieldError struct {
 
 // InputValidationError should be called with errors from the `validator` package only
 func InputValidationError(err error) *APIError {
-	errs := err.(validator.ValidationErrors)
-
 	var errList []FieldError
+
+	errs, ok := err.(validator.ValidationErrors)
+	if !ok {
+		return &APIError{
+			statusCode: http.StatusBadRequest,
+			Code:       ErrInputValidation,
+			Message:    err.Error(),
+		}
+	}
 
 	for _, e := range errs {
 		errList = append(errList, FieldError{
@@ -67,4 +76,17 @@ func DatabaseError(err error) *APIError {
 	}
 
 	return apiErr
+}
+
+func GenericError(err error) *APIError {
+	msg := "Something has gone wrong (generic)"
+
+	if err != nil {
+		msg = err.Error()
+	}
+
+	return &APIError{
+		Code:    ErrGenericError,
+		Message: msg,
+	}
 }

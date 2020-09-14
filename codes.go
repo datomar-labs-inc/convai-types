@@ -2,12 +2,14 @@ package ctypes
 
 // API Error Codes
 const (
+	ErrGenericError             = 0
 	ErrResourceNotFound         = 404
 	ErrInputValidation          = 501
 	ErrDatabaseIssue            = 405
 	ErrRedisFailure             = 406
 	ErrGrooveFailure            = 407
 	ErrNotAuthenticated         = 408
+	ErrInvalidToken             = 409
 	ErrDispatchUnmarshal        = 466
 	ErrDispatchNotFound         = 467
 	ErrHandlerFailure           = 515

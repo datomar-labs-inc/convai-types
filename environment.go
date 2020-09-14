@@ -15,3 +15,8 @@ type DBEnvironment struct {
 	PromotedAt  *time.Time                `db:"promoted_at,omitempty" json:"promoted_at,omitempty"`
 	IsDev       bool                      `db:"is_dev" json:"is_dev"`
 }
+
+type UpdateEnvironmentPackageConfigRequest struct {
+	PackageID uuid.UUID   `json:"package_id"`
+	Data      interface{} `json:"data"`
+}
