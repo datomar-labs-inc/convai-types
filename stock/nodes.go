@@ -97,6 +97,10 @@ type HttpRequestConfig struct {
 	Headers    map[string]string `json:"headers"`
 }
 
+type ScriptConfig struct {
+	Javascript string `json:"js"`
+}
+
 var StockNodeHTTPRequest = ctypes.DBNode{
 	Name:    "HTTP Request",
 	TypeID:  "http",

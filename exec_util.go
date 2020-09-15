@@ -16,6 +16,14 @@ const (
 	OpDelete
 )
 
+const (
+	LogLevelTrace   = 10
+	LogLevelDebug   = 20
+	LogLevelInfo    = 30
+	LogLevelWarning = 40
+	LogLevelError   = 50
+)
+
 type ExecutionResult struct {
 	ID             uuid.UUID     `json:"id"`
 	EnvironmentID  uuid.UUID     `json:"environment_id"`
@@ -51,7 +59,7 @@ type Error struct {
 type LogEntry struct {
 	Message    string `json:"message"`
 	Level      int    `json:"level"`
-	ExecOffset int    `json:"exec_offset"` // The number of milliseconds since the start of node execution
+	ExecOffset int64  `json:"exec_offset"` // The number of milliseconds since the start of node execution
 }
 
 type Transformation struct {
