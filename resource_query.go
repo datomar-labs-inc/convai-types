@@ -25,14 +25,39 @@ const (
 
 // ResourceQuery is the format used to perform custom resource queries against memory and execution logs
 type ResourceQuery struct {
-	Mode    int   `json:"mode"`
-	Queries []RQQ `json:"queries"`
+	Mode    int    `json:"mode"`
+	Limit   uint64 `json:"limit"`
+	Offset  uint64 `json:"offset"`
+	Queries []RQQ  `json:"queries"`
 }
 
 func NewResourceQuery(mode int) *ResourceQuery {
 	return &ResourceQuery{
-		Mode: mode,
+		Limit: 10,
+		Mode:  mode,
 	}
+}
+
+func (q *ResourceQuery) ResourceLimit(limit uint64) *ResourceQuery {
+	if limit <= 0 {
+		limit = 10
+	} else if limit > 1000 {
+		limit = 1000
+	}
+
+	q.Limit = limit
+
+	return q
+}
+
+func (q *ResourceQuery) ResourceOffset(offset uint64) *ResourceQuery {
+	if offset < 0 {
+		offset = 0
+	}
+
+	q.Offset = offset
+
+	return q
 }
 
 func (q *ResourceQuery) Equals(field, value string) *ResourceQuery {

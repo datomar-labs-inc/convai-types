@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/opentracing-contrib/go-zap/log"
 	"go.uber.org/zap"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -32,17 +33,14 @@ func (s *ExecutionResult) AllTransformations() (transformations []Transformation
 
 // Mongoify will return a version of an ExecutionResult with an _id field to override Mongo's default _id field
 // Returns a new struct with a MongoID field. It looks all weird because the struct is being defined inline
-func (s *ExecutionResult) Mongoify() *struct {
-	MongoID uuid.UUID `json:"_id"`
-	*ExecutionResult
-} {
-	return &struct {
+func (s *ExecutionResult) Mongoify() bson.M {
+	return mustMappify(&struct {
 		MongoID uuid.UUID `json:"_id"`
 		*ExecutionResult
 	}{
 		MongoID:         s.ID,
 		ExecutionResult: s,
-	}
+	})
 }
 
 type Error struct {
