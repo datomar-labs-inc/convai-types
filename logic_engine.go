@@ -24,8 +24,8 @@ type Frame struct {
 }
 
 type Step struct {
-	Node     *NodeExecutionResult               `json:"node"`
-	Links    map[uuid.UUID]LinkEvaluationResult `json:"links"`
+	Node     *NodeExecutionResult               `json:"node,omitempty"`
+	Links    map[uuid.UUID]LinkEvaluationResult `json:"links,omitempty"`
 	Duration time.Duration                      `json:"duration"`
 }
 
@@ -40,11 +40,11 @@ func GetAllTransformations(steps []Step) (transformations []Transformation) {
 }
 
 type NodeExecutionResult struct {
-	Transformations []Transformation `json:"transformations"`
-	Logs            []LogEntry       `json:"logs"`
-	Errors          []Error          `json:"errors"`
-	HaltExecution   bool             `json:"halt_execution"`
-	GoTo            *GoTo            `json:"go_to"`
+	Transformations []Transformation `json:"transformations,omitempty"`
+	Logs            []LogEntry       `json:"logs,omitempty"`
+	Errors          []Error          `json:"errors,omitempty"`
+	HaltExecution   bool             `json:"halt_execution,omitempty"`
+	GoTo            *GoTo            `json:"go_to,omitempty"`
 }
 
 type GoTo struct {
@@ -54,8 +54,8 @@ type GoTo struct {
 }
 
 type LinkEvaluationResult struct {
-	Logs     []LogEntry        `json:"logs"`
-	Errors   []Error           `json:"errors"`
+	Logs     []LogEntry        `json:"logs,omitempty"`
+	Errors   []Error           `json:"errors,omitempty"`
 	Passable bool              `json:"passable"` // Can the execution of this module proceed down this link
 	Link     CompiledGraphLink `json:"-"`
 }
