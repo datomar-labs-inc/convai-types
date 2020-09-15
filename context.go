@@ -21,7 +21,7 @@ var liquidEngine *liquid.Engine
 type Context struct {
 	Name          string            `json:"name"`
 	ID            uuid.UUID         `json:"id"`
-	ParentID      uuid.UUID         `json:"parent_id"`
+	ParentID      *uuid.UUID        `json:"parent_id,omitempty"`
 	Ref           []string          `json:"ref"` // Maps to a ref table in the database, will be unpacked/queried into a slice
 	Memory        []MemoryContainer `json:"memory"`
 	EnvironmentID uuid.UUID         `json:"environment_id"`
@@ -78,7 +78,7 @@ func (c *Context) CopyFrom(dbCtx *DBContext) (filledParent bool) {
 
 	// Update all children's parentID
 	for i, child := range c.Children {
-		child.ParentID = c.ID
+		child.ParentID = &c.ID
 		c.Children[i] = child
 	}
 
@@ -96,11 +96,11 @@ func (c *Context) CopyFrom(dbCtx *DBContext) (filledParent bool) {
 	}
 
 	if dbCtx.ParentID != nil {
-		c.ParentID = *dbCtx.ParentID
+		c.ParentID = dbCtx.ParentID
 
 		// Check if the tree can have it's parent updated
-		if c.Parent != nil && c.Parent.ID != c.ParentID {
-			c.Parent.ID = c.ParentID
+		if c.Parent != nil && c.Parent.ID != *c.ParentID {
+			c.Parent.ID = *c.ParentID
 			filledParent = true // Filled parent is set to true to signal that the parent's id was updated, but nothing else
 		}
 	}
@@ -260,7 +260,7 @@ func (c *Context) GetLastTreeItem() *Context {
 
 // AddChildContext adds a child to the current context, and returns the current context
 func (c *Context) AddChildContext(context *Context) *Context {
-	context.ParentID = c.ID
+	context.ParentID = &c.ID
 	context.Parent = c
 	c.Children = append(c.Children, *context)
 	return c
@@ -411,11 +411,12 @@ func (c *Context) WithTransformations(transformations []Transformation) (*Contex
 	}
 
 	newContext := Context{
-		Name:     c.Name,
-		ID:       c.ID,
-		ParentID: c.ParentID,
-		Ref:      c.Ref,
-		Memory:   newMemory,
+		Name:          c.Name,
+		ID:            c.ID,
+		ParentID:      c.ParentID,
+		Ref:           c.Ref,
+		Memory:        newMemory,
+		EnvironmentID: c.EnvironmentID,
 	}
 
 	if len(c.Children) > 0 {
@@ -427,7 +428,7 @@ func (c *Context) WithTransformations(transformations []Transformation) (*Contex
 				return nil, err
 			}
 
-			transformed.ParentID = newContext.ID
+			transformed.ParentID = &newContext.ID
 			transformed.Parent = &newContext
 
 			children = append(children, *transformed)

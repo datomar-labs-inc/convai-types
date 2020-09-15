@@ -15,6 +15,7 @@ type Executable struct {
 // ExecutionRequest is what the api will be called with when an execution should be performed
 type ExecutionRequest struct {
 	ID              uuid.UUID         `json:"id"`
+	BotID           uuid.UUID         `json:"bot_id"`
 	Event           string            `json:"event"`
 	Mock            bool              `json:"mock"`
 	Text            string            `json:"text"`

@@ -14,13 +14,13 @@ const (
 
 type CompiledBot struct {
 	// Event nodes stores the graph/node combo for each event that can be handled by this bot
-	EventNodes map[string][]uuid.UUID `json:"event_nodes"`
+	EventNodes map[string][]uuid.UUID `json:"event_nodes" msgpack:"e"`
 
 	// PackageIDs stores a list of all packages referenced by this compiled bot
-	PackageIDs []uuid.UUID            `json:"package_ids"`
+	PackageIDs []uuid.UUID `json:"package_ids" msgpack:"p"`
 
 	// Modules stores all available modules
-	Modules map[uuid.UUID]CompiledGraphModule `json:"modules"`
+	Modules map[uuid.UUID]CompiledGraphModule `json:"modules" msgpack:"m"`
 }
 
 type CompilerResult struct {
