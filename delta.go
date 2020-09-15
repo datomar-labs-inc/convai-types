@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"time"
 
 	"upper.io/db.v3/postgresql"
 
@@ -52,7 +51,7 @@ type DBDelta struct {
 	UpdateType  int             `db:"update_type" json:"update_type"`
 	Operations  DeltaOperations `db:"delta" json:"delta"`
 	BlueprintID *uuid.UUID      `db:"blueprint_id,omitempty" json:"blueprint_id,omitempty"`
-	CreatedAt   *time.Time      `db:"created_at,omitempty" json:"created_at,omitempty"`
+	CreatedAt   *CustomTime     `db:"created_at,omitempty" json:"created_at,omitempty"`
 }
 
 func (d *DBDelta) GetGroovePath() string {

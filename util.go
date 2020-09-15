@@ -8,6 +8,6 @@ func StrPtr(str string) *string {
 	return &str
 }
 
-func TimePtr(time time.Time) *time.Time {
-	return &time
+func TimePtr(time time.Time) *CustomTime {
+	return &CustomTime{time}
 }

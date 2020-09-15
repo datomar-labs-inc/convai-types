@@ -4,20 +4,19 @@ import (
 	b64 "encoding/base64"
 	"fmt"
 	"reflect"
-	"time"
 
 	"github.com/google/uuid"
 )
 
 type DBPackage struct {
-	ID             uuid.UUID  `db:"id" json:"id" validate:"required"`
-	Name           string     `db:"name" json:"name" validate:"required"`
-	Description    string     `db:"description" json:"description"`
-	OrganizationID uuid.UUID  `db:"-" json:"organization_id"`
-	BaseURL        string     `db:"base_url" json:"base_url" validate:"required,url"`
-	SigningKey     string     `db:"signing_key" json:"signing_key,omitempty"`
-	CreatedAt      *time.Time `db:"created_at,omitempty" json:"created_at,omitempty"`
-	UpdatedAt      *time.Time `db:"updated_at,omitempty" json:"updated_at,omitempty"`
+	ID             uuid.UUID   `db:"id" json:"id" validate:"required"`
+	Name           string      `db:"name" json:"name" validate:"required"`
+	Description    string      `db:"description" json:"description"`
+	OrganizationID uuid.UUID   `db:"-" json:"organization_id"`
+	BaseURL        string      `db:"base_url" json:"base_url" validate:"required,url"`
+	SigningKey     string      `db:"signing_key" json:"signing_key,omitempty"`
+	CreatedAt      *CustomTime `db:"created_at,omitempty" json:"created_at,omitempty"`
+	UpdatedAt      *CustomTime `db:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
 type Package struct {

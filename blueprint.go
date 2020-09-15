@@ -1,8 +1,6 @@
 package ctypes
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
@@ -11,8 +9,8 @@ type DBBlueprint struct {
 	Modules   DBModuleList `db:"modules" json:"modules"`
 	Version   string       `db:"version" json:"version"`
 	BotID     uuid.UUID    `db:"bot_id" json:"bot_id"`
-	CreatedAt *time.Time   `db:"created_at,omitempty" json:"created_at,omitempty"`
-	UpdatedAt *time.Time   `db:"updated_at,omitempty" json:"updated_at,omitempty"`
+	CreatedAt *CustomTime  `db:"created_at,omitempty" json:"created_at,omitempty"`
+	UpdatedAt *CustomTime  `db:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
 type DBModuleList []DBModuleListItem

@@ -3,7 +3,6 @@ package ctypes
 import (
 	"database/sql"
 	"database/sql/driver"
-	"time"
 
 	"github.com/google/uuid"
 	"upper.io/db.v3/postgresql"
@@ -14,8 +13,15 @@ type DBBot struct {
 	Name              string            `db:"name" json:"name"`
 	OrganizationID    uuid.UUID         `db:"organization_id" json:"organization_id"`
 	InstalledPackages InstalledPackages `db:"installed_packages" json:"installed_packages"`
-	CreatedAt         *time.Time        `db:"created_at,omitempty" json:"created_at"`
-	UpdatedAt         *time.Time        `db:"updated_at,omitempty" json:"updated_at"`
+	CreatedAt         *CustomTime       `db:"created_at,omitempty" json:"created_at"`
+	UpdatedAt         *CustomTime       `db:"updated_at,omitempty" json:"updated_at"`
+}
+
+// APIBot is what is returned when fetching a single bot
+type APIBot struct {
+	*DBBot
+	Environments DBEnvironments `db:"environments" json:"environments"`
+	Packages     []Package      `db:"packages" json:"packages"`
 }
 
 type CreateBotRequest struct {

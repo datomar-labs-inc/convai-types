@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/blang/semver"
 	"github.com/google/uuid"
@@ -19,8 +18,8 @@ type DBModule struct {
 	Changelog string      `db:"changelog" json:"changelog"`
 	Name      string      `db:"name" json:"name"`
 	Graph     GraphModule `db:"graph" json:"graph"`
-	CreatedAt *time.Time  `db:"created_at,omitempty" json:"created_at"`
-	UpdatedAt *time.Time  `db:"updated_at,omitempty" json:"updated_at"`
+	CreatedAt *CustomTime `db:"created_at,omitempty" json:"created_at"`
+	UpdatedAt *CustomTime `db:"updated_at,omitempty" json:"updated_at"`
 }
 
 type GraphNode struct {
@@ -28,7 +27,7 @@ type GraphNode struct {
 
 	// Properties that are common to all types of nodes
 	PackageID uuid.UUID `json:"package_id,omitempty" msgpack:"p,omitempty"`
-	Label string `json:"label" msgpack:"la"`
+	Label     string    `json:"label" msgpack:"la"`
 
 	// Properties of a node that references functionality in a package
 	TypeID     *string `json:"type_id,omitempty" msgpack:"n,omitempty"`
