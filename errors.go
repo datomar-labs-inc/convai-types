@@ -9,6 +9,7 @@ import (
 )
 
 var (
+	RateLimitExceeded           = &APIError{Code: ErrRateLimitExceeded, Message: "Rate limit exceeded", statusCode: http.StatusTooManyRequests}
 	NotFoundError               = &APIError{Code: ErrResourceNotFound, Message: "Resource not found", statusCode: http.StatusNotFound}
 	InvalidTokenError           = &APIError{Code: ErrInvalidToken, Message: "Invalid authentication token", statusCode: http.StatusUnauthorized}
 	NotAuthenticatedError       = &APIError{Code: ErrNotAuthenticated, Message: "Cannot perform action without being authenticated", statusCode: http.StatusUnauthorized}

@@ -20,7 +20,7 @@ func TestApplyOperationToModule(t *testing.T) {
 	// ***************************************
 	createNode := DeltaOperation{
 		Type:     DOCreateNode,
-		ModuleID: module.ID,
+		ModuleID: &module.ID,
 
 		CreateNode: &DeltaCreateNode{
 			ID:         uuid.Must(uuid.NewRandom()),
@@ -49,7 +49,7 @@ func TestApplyOperationToModule(t *testing.T) {
 	// ***************************************
 	moveNode := DeltaOperation{
 		Type:     DOMoveNode,
-		ModuleID: module.ID,
+		ModuleID: &module.ID,
 
 		MoveNode: &DeltaMoveNode{
 			ID: createNode.CreateNode.ID,
