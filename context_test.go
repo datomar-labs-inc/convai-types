@@ -296,7 +296,7 @@ func TestContext_GetTemplateData(t *testing.T) {
 func TestContext_IDPath(t *testing.T) {
 	idPath := ContextTestTree.IDPath()
 
-	if idPath != fmt.Sprintf("%s.%s.%s", cttEnvID.String(), cttUserGroupID.String(), cttUserID.String()) {
+	if idPath != fmt.Sprintf("%s.%s.%s", CTTEnvID.String(), CTTUserGroupID.String(), CTTUserID.String()) {
 		t.Error("id path invalid")
 	}
 }

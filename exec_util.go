@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/opentracing-contrib/go-zap/log"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.uber.org/zap"
-	"gopkg.in/mgo.v2/bson"
 )
 
 const (

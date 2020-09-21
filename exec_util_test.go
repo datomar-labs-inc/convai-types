@@ -1,7 +1,10 @@
 package ctypes
 
 import (
+	"reflect"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 func TestGetDataPathKey(t *testing.T) {
@@ -13,7 +16,7 @@ func TestGetDataPathKey(t *testing.T) {
 }
 
 func TestExecutionResult_GetMemoryUpdates(t *testing.T) {
-	envID := Newuuid.UUID()
+	envID := uuid.Must(uuid.NewRandom())
 
 	type fields struct {
 		EnvironmentID  uuid.UUID
@@ -56,7 +59,7 @@ func TestExecutionResult_GetMemoryUpdates(t *testing.T) {
 			},
 			want: []MemoryUpdate{
 				{
-					ContextID:     cttEnvID,
+					ContextID:     CTTEnvID,
 					EnvironmentID: envID,
 					ContainerType: MCTypeSession,
 					ContainerName: "data",
@@ -74,7 +77,7 @@ func TestExecutionResult_GetMemoryUpdates(t *testing.T) {
 					},
 				},
 				{
-					ContextID:     cttUserID,
+					ContextID:     CTTUserID,
 					EnvironmentID: envID,
 					ContainerType: MCTypeSession,
 					ContainerName: "data",

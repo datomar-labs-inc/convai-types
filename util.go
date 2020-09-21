@@ -7,14 +7,14 @@ import (
 )
 
 var (
-	envID       = uuid.Must(uuid.NewRandom())
-	userGroupID = uuid.Must(uuid.NewRandom())
-	userID      = uuid.Must(uuid.NewRandom())
+	CTTEnvID       = uuid.Must(uuid.NewRandom())
+	CTTUserGroupID = uuid.Must(uuid.NewRandom())
+	CTTUserID      = uuid.Must(uuid.NewRandom())
 )
 
 var ContextTestTree = Context{
 	Name: "environment",
-	ID:   envID,
+	ID:   CTTEnvID,
 	Memory: []MemoryContainer{
 		{
 			Name:    "data",
@@ -30,7 +30,7 @@ var ContextTestTree = Context{
 	Children: []Context{
 		{
 			Name: "user_group",
-			ID:   userGroupID,
+			ID:   CTTUserGroupID,
 			Memory: []MemoryContainer{
 				{
 					Name:    "data",
@@ -48,7 +48,7 @@ var ContextTestTree = Context{
 			Children: []Context{
 				{
 					Name: "user",
-					ID:   userID,
+					ID:   CTTUserID,
 					Memory: []MemoryContainer{
 						{
 							Name:    "data",
