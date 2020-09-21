@@ -5,8 +5,17 @@ import (
 	"database/sql/driver"
 	"fmt"
 
+	"github.com/google/uuid"
 	"upper.io/db.v3/postgresql"
 )
+
+type MemoryUpdate struct {
+	ContextID       uuid.UUID        `json:"i"`
+	EnvironmentID   uuid.UUID        `json:"e"`
+	ContainerType   int              `json:"ct"`
+	ContainerName   string           `json:"c"`
+	Transformations []Transformation `json:"t"`
+}
 
 type Mem map[string]interface{}
 
@@ -71,6 +80,10 @@ func (m *MemoryContainer) Transform(transformation ...Transformation) *MemoryCon
 	// If this memory container is not allowed to be modified, do not modify it
 	if m.Type == MCTypeReadOnly {
 		return m
+	}
+
+	if m.Data == nil {
+		m.Data = map[string]interface{}{}
 	}
 
 	for _, t := range transformation {

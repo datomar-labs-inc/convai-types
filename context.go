@@ -10,8 +10,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/osteele/liquid"
-
-	"github.com/datomar-labs-inc/convai-types/deepcopy"
 )
 
 var reflectValueType = reflect.TypeOf((*reflect.Value)(nil)).Elem()
@@ -118,6 +116,16 @@ func (c *Context) ToDBMemory() (mem DBMemoryContainers) {
 	}
 
 	return
+}
+
+func (c *Context) GetMemoryContainerByName(name string) *MemoryContainer {
+	for _, mc := range c.Memory {
+		if mc.Name == name {
+			return &mc
+		}
+	}
+
+	return nil
 }
 
 type DBContext struct {
@@ -387,7 +395,7 @@ func (c *Context) WithTransformations(transformations []Transformation) (*Contex
 	newMemory := []MemoryContainer{}
 
 	for _, mc := range c.Memory {
-		memCopy, err := deepcopy.DeepCopy(mc.Data)
+		memCopy, err := DeepCopy(mc.Data)
 		if err != nil {
 			panic(err)
 		}

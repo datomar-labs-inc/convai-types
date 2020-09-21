@@ -24,6 +24,16 @@ type APIBot struct {
 	Packages     []Package      `db:"packages" json:"packages"`
 }
 
+func (b *APIBot) GetEnvironment(id uuid.UUID) *DBEnvironment {
+	for _, e := range b.Environments {
+		if e.ID == id {
+			return &e
+		}
+	}
+
+	return nil
+}
+
 type CreateBotRequest struct {
 	Name string `json:"name" validate:"required,max=35,min=2"`
 }

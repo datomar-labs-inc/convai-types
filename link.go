@@ -72,6 +72,8 @@ type LinkExecutionResponse struct {
 	Results []LinkCallResult `json:"results"` // Results should be returned in the same order that the calls were provided
 }
 
+type LinkResultCollection map[uuid.UUID]LinkEvaluationResult
+
 func (g LinkStyle) Value() (driver.Value, error) {
 	return postgresql.EncodeJSONB(g)
 }

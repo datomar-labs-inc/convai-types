@@ -6,7 +6,7 @@
 // same caveats.
 // See: https://blog.golang.org/gobs-of-data
 // See: https://golang.org/pkg/encoding/gob/
-package deepcopy
+package ctypes
 
 import (
 	"encoding/gob"

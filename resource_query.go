@@ -103,7 +103,7 @@ func ResourceQueryFromURL(url *url.URL, fieldPrefix string) (*ResourceQuery, err
 			if parts := strings.Split(key, "."); len(parts) > 1 {
 				prefix := parts[0]
 
-				field := fieldPrefix + strings.TrimPrefix(key, prefix + ".")
+				field := fieldPrefix + strings.TrimPrefix(key, prefix+".")
 
 				if !validateFieldName(field) {
 					return nil, errors.New("invalid field name " + field)

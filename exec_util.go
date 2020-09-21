@@ -1,6 +1,7 @@
 package ctypes
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -28,11 +29,52 @@ type ExecutionResult struct {
 	ID             uuid.UUID     `json:"id"`
 	EnvironmentID  uuid.UUID     `json:"environment_id"`
 	BotID          uuid.UUID     `json:"bot_id"`
-	StartTime      time.Time     `json:"start_time"`
-	FinishTime     time.Time     `json:"finish_time"`
+	StartTime      CustomTime    `json:"start_time"`
+	FinishTime     CustomTime    `json:"finish_time"`
 	Duration       time.Duration `json:"duration"`
 	InitialContext *Context      `json:"initial_context"`
 	Steps          []Step        `json:"steps"`
+}
+
+func (s *ExecutionResult) GetMemoryUpdates() []MemoryUpdate {
+	var updates = make(map[string]MemoryUpdate)
+
+	for _, step := range s.AllTransformations() {
+		ctx, ok := s.InitialContext.GetContextByName(step.GetContextLevelName())
+		if ok && ctx.ID != uuid.Nil {
+			mc := ctx.GetMemoryContainerByName(step.GetMemoryContainerName())
+
+			if mc != nil {
+				key := fmt.Sprintf("%s.%s", step.GetContextLevelName(), step.GetMemoryContainerName())
+
+				if ud, ok := updates[key]; !ok {
+					updates[key] = MemoryUpdate{
+						ContextID:       ctx.ID,
+						EnvironmentID:   s.EnvironmentID,
+						ContainerType:   mc.Type,
+						ContainerName:   mc.Name,
+						Transformations: []Transformation{step},
+					}
+				} else {
+					ud.Transformations = append(updates[key].Transformations, step)
+					updates[key] = ud
+				}
+
+			} else {
+				// There was a memory modification to a non existent memory container :/
+			}
+		} else {
+			// There was a memory modification to a non existent context :/
+		}
+	}
+
+	var udList []MemoryUpdate
+
+	for _, ud := range updates {
+		udList = append(udList, ud)
+	}
+
+	return udList
 }
 
 func (s *ExecutionResult) AllTransformations() (transformations []Transformation) {

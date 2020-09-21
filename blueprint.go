@@ -45,7 +45,6 @@ var (
 	_ sql.Scanner   = &DBModuleList{}
 )
 
-
 type DBModuleListItem struct {
 	ModuleID uuid.UUID `db:"id" json:"id"`
 	Version  string    `db:"version" json:"version"`

@@ -48,7 +48,7 @@ type NodeCall struct {
 	Version         string    `json:"version"`          // Which version of this node was this config created on
 	Config          string    `json:"config"`           // How this specific node was configured by the bot builder (JSON format)
 	PackageSettings string    `json:"package_settings"` // Settings for this package (JSON format)
-	Tree            *Context   `json:"tree"`            // A context tree containing all data visible by the package
+	Tree            *Context  `json:"tree"`             // A context tree containing all data visible by the package
 	Sequence        int       `json:"sequence"`         // The number of nodes that have been executed during this execution
 }
 

@@ -21,6 +21,7 @@ func (ct *CustomTime) UnmarshalJSON(b []byte) (err error) {
 		return
 	}
 	ct.Time, err = time.Parse(ctLayout, s)
+	ct.Time = ct.Time.UTC()
 	return
 }
 
@@ -28,7 +29,7 @@ func (ct *CustomTime) MarshalJSON() ([]byte, error) {
 	if ct.Time.UnixNano() == nilTime {
 		return []byte("null"), nil
 	}
-	return []byte(fmt.Sprintf("\"%s\"", ct.Time.Format(ctLayout))), nil
+	return []byte(fmt.Sprintf("\"%s\"", ct.Time.UTC().Format(ctLayout))), nil
 }
 
 var nilTime = (time.Time{}).UnixNano()

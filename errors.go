@@ -20,6 +20,7 @@ var (
 	InsufficientPermissions     = &APIError{Code: ErrInsufficientPermissions, Message: "Insufficient permissions to perform this action", statusCode: http.StatusForbidden}
 	RedisFailure                = &APIError{Code: ErrRedisFailure, Message: "Something went wrong", statusCode: http.StatusInternalServerError}
 	GrooveFailure               = &APIError{Code: ErrGrooveFailure, Message: "Something went wrong", statusCode: http.StatusInternalServerError}
+	MongoFailure                = &APIError{Code: ErrMongoFailure, Message: "Something went wrong", statusCode: http.StatusInternalServerError}
 )
 
 type FieldError struct {

@@ -12,8 +12,8 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/osteele/liquid v1.2.4
 	github.com/osteele/tuesday v1.0.3 // indirect
+	go.mongodb.org/mongo-driver v1.4.1
 	go.uber.org/zap v1.16.0
-	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 	upper.io/db.v3 v3.7.1+incompatible
 )

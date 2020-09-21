@@ -10,6 +10,7 @@ const (
 	ErrGrooveFailure            = 407
 	ErrNotAuthenticated         = 408
 	ErrInvalidToken             = 409
+	ErrMongoFailure             = 410
 	ErrRateLimitExceeded        = 429
 	ErrDispatchUnmarshal        = 466
 	ErrDispatchNotFound         = 467
