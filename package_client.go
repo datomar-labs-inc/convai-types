@@ -14,6 +14,15 @@ import (
 	"time"
 )
 
+type PackageClientError struct {
+	Status int
+	Body   string
+}
+
+func (p *PackageClientError) Error() string {
+	return fmt.Sprintf("%d: %s", p.Status, p.Body)
+}
+
 // PackageClient is used to make requests to packages
 type PackageClient struct {
 	client http.Client
@@ -159,7 +168,7 @@ func (p *PackageClient) makeRequestWithBody(method, url, signingToken string, bo
 
 		pkgErr = json.Unmarshal(rsb, &pkgErr)
 		if pkgErr != nil {
-			return errors.New("request pkgErr: " + string(rsb))
+			return &PackageClientError{Status: res.StatusCode, Body: string(rsb)}
 		} else {
 			return errors.New(pkgErr.Error())
 		}

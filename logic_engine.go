@@ -12,6 +12,7 @@ type ExecutionOptions struct {
 	MaximumNodeExecutionDuration  time.Duration
 	MaximumLinkEvaluationDuration time.Duration
 	Timeout                       time.Duration
+	InitialTransforms             []Transformation // These transformations should be applied as the first step during execution
 
 	Event string
 	Data  interface{}
@@ -24,6 +25,7 @@ type Frame struct {
 }
 
 type Step struct {
+	ModuleID *uuid.UUID                         `json:"module_id,omitempty"`
 	Node     *NodeExecutionResult               `json:"node,omitempty"`
 	Links    map[uuid.UUID]LinkEvaluationResult `json:"links,omitempty"`
 	Duration time.Duration                      `json:"duration"`
@@ -40,6 +42,7 @@ func GetAllTransformations(steps []Step) (transformations []Transformation) {
 }
 
 type NodeExecutionResult struct {
+	NodeID          *uuid.UUID       `json:"node_id,omitempty"`
 	Transformations []Transformation `json:"transformations,omitempty"`
 	Logs            []LogEntry       `json:"logs,omitempty"`
 	Errors          []Error          `json:"errors,omitempty"`

@@ -14,7 +14,7 @@ type DBAccount struct {
 	Email       string      `db:"email" json:"email"`
 	AccountType string      `db:"account_type" json:"account_type"`
 	AccountKey  *string     `db:"account_key,omitempty" json:"account_key,omitempty"`
-	PackageID   *uuid.UUID  `db:"package_id,omitempty" json:"package_id,omitempty"`
+	PackageID   *uuid.UUID  `db:"package_id,omitempty" json:"package_id,omitempty"` // If this account belongs to a package
 	Admin       bool        `db:"admin" json:"admin"`
 	CreatedAt   *CustomTime `db:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt   *CustomTime `db:"updated_at,omitempty" json:"updated_at,omitempty"`

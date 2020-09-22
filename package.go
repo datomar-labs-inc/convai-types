@@ -3,10 +3,36 @@ package ctypes
 import (
 	b64 "encoding/base64"
 	"fmt"
+	"io"
 	"reflect"
 
 	"github.com/google/uuid"
 )
+
+type IPackageProvider interface {
+	GetManifest() *Package
+	ExecuteNode(input *NodeCall) (*NodeCallResult, error)
+	ExecuteNodeMock(input *NodeCall) (*NodeCallResult, error)
+	ExecuteLink(request *LinkExecutionRequest) (*LinkExecutionResponse, error)
+	ExecuteLinkMock(request *LinkExecutionRequest) (*LinkExecutionResponse, error)
+	Dispatch(request *DispatchRequest) (*DispatchResponse, error)
+	DispatchMock(request *DispatchRequest) (*DispatchResponse, error)
+	GetAsset(filename string) (io.Reader, error)
+}
+
+type CreatePackageRequest struct {
+	Name        string `json:"name"`
+	BaseURL     string `json:"base_url"`
+	Description string `json:"description"`
+}
+
+type CatalogPackageRequest struct {
+	ID uuid.UUID `json:"id"`
+}
+
+type BuildManifestRequest struct {
+	PackageIDs []uuid.UUID `json:"package_ids"`
+}
 
 type DBPackage struct {
 	ID             uuid.UUID   `db:"id" json:"id" validate:"required"`
