@@ -13,8 +13,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// PlugmanClient is used to make requests to packages
-type PlugmanClient struct {
+// PackmanClient is used to make requests to packages
+type PackmanClient struct {
 	baseURL string
 	client  http.Client
 }
@@ -30,8 +30,8 @@ type PageInfo struct {
 	Count          int    `json:"count"`
 }
 
-func NewPlugmanClient(baseURL string) *PlugmanClient {
-	return &PlugmanClient{
+func NewPackmanClient(baseURL string) *PackmanClient {
+	return &PackmanClient{
 		baseURL: baseURL,
 		client: http.Client{
 			Timeout: 10 * time.Second,
@@ -39,7 +39,7 @@ func NewPlugmanClient(baseURL string) *PlugmanClient {
 	}
 }
 
-func (p *PlugmanClient) ListManifest(ids []uuid.UUID) (*ManifestResponse, error) {
+func (p *PackmanClient) ListManifest(ids []uuid.UUID) (*ManifestResponse, error) {
 	var stringFormIds []string
 
 	for _, id := range ids {
@@ -58,15 +58,15 @@ func (p *PlugmanClient) ListManifest(ids []uuid.UUID) (*ManifestResponse, error)
 	return &manifests, nil
 }
 
-func (p *PlugmanClient) DoJSONPost(url string, body interface{}, result interface{}) error {
+func (p *PackmanClient) DoJSONPost(url string, body interface{}, result interface{}) error {
 	return p.makeRequestWithBody("POST", fmt.Sprintf("%s%s", p.baseURL, url), body, result)
 }
 
-func (p *PlugmanClient) DoJSONGet(url string, result interface{}) error {
+func (p *PackmanClient) DoJSONGet(url string, result interface{}) error {
 	return p.makeRequestWithBody("GET", fmt.Sprintf("%s%s", p.baseURL, url), nil, result)
 }
 
-func (p *PlugmanClient) makeRequestWithBody(method, url string, body interface{}, out interface{}) error {
+func (p *PackmanClient) makeRequestWithBody(method, url string, body interface{}, out interface{}) error {
 	jsb, err := json.Marshal(body)
 	if err != nil {
 		return err
