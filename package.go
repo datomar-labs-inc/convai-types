@@ -10,6 +10,7 @@ import (
 )
 
 type IPackageProvider interface {
+	// GetManifest should return the package manifest information
 	GetManifest() *Package
 	ExecuteNode(input *NodeCall) (*NodeCallResult, error)
 	ExecuteNodeMock(input *NodeCall) (*NodeCallResult, error)
@@ -18,6 +19,7 @@ type IPackageProvider interface {
 	Dispatch(request *DispatchRequest) (*DispatchResponse, error)
 	DispatchMock(request *DispatchRequest) (*DispatchResponse, error)
 	GetAsset(filename string) (io.Reader, error)
+	MiscRequest(key string, jsonBody []byte) (interface{}, error)
 }
 
 type CreatePackageRequest struct {
