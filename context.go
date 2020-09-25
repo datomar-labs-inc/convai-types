@@ -1,6 +1,7 @@
 package ctypes
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,18 +16,37 @@ import (
 var reflectValueType = reflect.TypeOf((*reflect.Value)(nil)).Elem()
 var liquidEngine *liquid.Engine
 
+const (
+	ContextNameEnvironment = "env"
+	ContextNameUserGroup   = "user"
+	ContextNameChannelUser = "channel_user"
+	ContextNameThread      = "thread"
+	ContextNameGeneric     = "generic"
+)
+
+var ValidCreateContextNames = []string{ContextNameUserGroup, ContextNameChannelUser, ContextNameThread, ContextNameGeneric}
+
+type CreateContextRequest struct {
+	Name      string                `json:"name"`
+	ParentIDs []uuid.UUID           `json:"parent_ids"`
+	Refs      []string              `json:"refs"`
+	Child     *CreateContextRequest `json:"child,omitempty"` // Child allows you to easily create a context tree
+}
+
 // Context is the actual data format for a context, NOT DATABASE FRIENDLY
 type Context struct {
 	Name          string            `json:"name"`
 	ID            uuid.UUID         `json:"id"`
 	ParentID      *uuid.UUID        `json:"parent_id,omitempty"`
+	ParentIDs     []uuid.UUID       `json:"parent_ids,omitempty"`
 	Ref           []string          `json:"ref"` // Maps to a ref table in the database, will be unpacked/queried into a slice
 	Memory        []MemoryContainer `json:"memory"`
 	EnvironmentID uuid.UUID         `json:"environment_id"`
 
 	// References
-	Parent   *Context  `json:"-"`
-	Children []Context `json:"children"`
+	Parent *Context `json:"-"`
+	// Children []Context `json:"children"`
+	Child *Context `json:"child,omitempty"`
 }
 
 // IDPath returns a groove friendly id path for the context
@@ -52,8 +72,8 @@ func (c *Context) Walk(executor func(c *Context) (cont bool, err error)) error {
 		return nil
 	}
 
-	if len(c.Children) > 0 {
-		return c.Children[0].Walk(executor)
+	if c.Child != nil {
+		return c.Child.Walk(executor)
 	}
 
 	return nil
@@ -69,19 +89,19 @@ func (c *Context) FlattenTree() (res []*Context) {
 	return
 }
 
-func (c *Context) CopyFrom(dbCtx *DBContext) (filledParent bool) {
+// CopyFromIgnoreParentCount copies the details of a db context into a full context
+func (c *Context) copyFrom(dbCtx *DBContextTreeItem, ignoreParentCount bool) (filledParent bool, err error) {
 	c.ID = dbCtx.ID
 	c.Name = dbCtx.Name
 	c.EnvironmentID = dbCtx.EnvironmentID
 
-	// Update all children's parentID
-	for i, child := range c.Children {
-		child.ParentID = &c.ID
-		c.Children[i] = child
+	// Update child's parent id
+	if c.Child != nil {
+		c.Child.ParentID = &c.ID
 	}
 
-	if dbCtx.Ref != nil {
-		c.Ref = dbCtx.Refs()
+	if dbCtx.Refs != nil {
+		c.Ref = dbCtx.Refs
 	}
 
 	for _, mc := range dbCtx.MemoryContainers {
@@ -93,17 +113,33 @@ func (c *Context) CopyFrom(dbCtx *DBContext) (filledParent bool) {
 		})
 	}
 
-	if dbCtx.ParentID != nil {
-		c.ParentID = dbCtx.ParentID
+	c.ParentIDs = dbCtx.ParentIDs
+
+	if len(dbCtx.ParentIDs) == 1 {
+		c.ParentID = &dbCtx.ParentIDs[0]
 
 		// Check if the tree can have it's parent updated
 		if c.Parent != nil && c.Parent.ID != *c.ParentID {
 			c.Parent.ID = *c.ParentID
 			filledParent = true // Filled parent is set to true to signal that the parent's id was updated, but nothing else
 		}
+	} else if len(dbCtx.ParentIDs) > 1 && !ignoreParentCount {
+		return false, errors.New("cannot copy from a context with more than one parent")
 	}
 
 	return
+}
+
+// CopyFrom copies the details of a db context into a full context
+func (c *Context) CopyFrom(dbCtx *DBContextTreeItem) (filledParent bool, err error) {
+	return c.copyFrom(dbCtx, false)
+}
+
+// CopyFromSafe copies the details of a db context into a full context
+// and does not return an error if a context has multiple parents
+func (c *Context) CopyFromSafe(dbCtx *DBContextTreeItem) bool {
+	filledParent, _ := c.copyFrom(dbCtx, true)
+	return filledParent
 }
 
 func (c *Context) ToDBMemory() (mem DBMemoryContainers) {
@@ -128,30 +164,94 @@ func (c *Context) GetMemoryContainerByName(name string) *MemoryContainer {
 	return nil
 }
 
+type DBContextRef struct {
+	ContextID uuid.UUID `db:"context_id" json:"context_id"`
+	Ref       string    `db:"ref" json:"ref"`
+}
+
 type DBContext struct {
 	ID               uuid.UUID          `db:"id" json:"id"`
-	ParentID         *uuid.UUID         `db:"parent_id,omitempty" json:"parent_id,omitempty"`
 	Name             string             `db:"name" json:"name"`
 	EnvironmentID    uuid.UUID          `db:"environment_id" json:"environment_id"`
 	MemoryContainers DBMemoryContainers `db:"memory_containers" json:"memory_containers"`
-
-	// The ref property is not present on the contexts table, but is frequently queried with it
-	Ref *string `db:"ref,omitempty" json:"ref,omitempty"`
-
-	Children []DBContext `db:"-" json:"children,omitempty"`
 }
 
-func (d *DBContext) Refs() []string {
-	if d.Ref != nil {
-		return strings.Split(*d.Ref, ",")
+type DBContextTreeItem struct {
+	DBContext
+	Hierarchy []string `db:"hierarchy" json:"hierarchy"`
+	Refs      []string `db:"refs" json:"refs"`
+}
+
+func (d *DBContextTreeItem) ParentIDs() []uuid.UUID {
+	for _, h := range d.Hierarchy {
+		bits := strings.Split(h, ".")
+
+		if len(bits) > 1 {
+
+		}
+	}
+}
+
+type DBContextWithCount struct {
+	DBContext
+	Count uint64 `db:"count"`
+}
+
+type UUIDSlice []uuid.UUID
+
+func (u UUIDSlice) Value() (driver.Value, error) {
+	idVal := ""
+
+	for i, id := range u {
+		idVal += id.String()
+
+		if i != len(u)-1 {
+			idVal += ","
+		}
+	}
+
+	return []byte(fmt.Sprintf("{%s}", idVal)), nil
+}
+
+func (u *UUIDSlice) Scan(src interface{}) error {
+	str := string(src.([]uint8))
+	str = strings.TrimPrefix(str, "{")
+	str = strings.TrimSuffix(str, "}")
+
+	if str != "" && str != "NULL" {
+		ids := strings.Split(str, ",")
+
+		for _, id := range ids {
+			*u = append(*u, uuid.MustParse(id))
+		}
 	}
 
 	return nil
 }
 
-type DBContextRef struct {
-	ContextID uuid.UUID `db:"context_id" json:"context_id"`
-	Ref       string    `db:"ref" json:"ref"`
+func (d *DBContext) HasRef(ref string) bool {
+	for _, r := range d.Refs {
+		if r == ref {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (d *DBContext) HasRefFrom(refs []string) bool {
+	for _, r := range refs {
+		if d.HasRef(r) {
+			return true
+		}
+	}
+
+	return false
+}
+
+type DBContextTree struct {
+	Hierarchy string    `db:"hierarchy"`
+	ContextID uuid.UUID `db:"context_id"`
 }
 
 // ContextTreeSlice is used to rectify a context tree. It is one piece of a context tree
@@ -195,13 +295,13 @@ func (c *Context) GetContextByName(name string) (*Context, bool) {
 		return c, true
 	}
 
-	if len(c.Children) == 0 {
+	if c.Child == nil {
 		return nil, false
 	}
 
 	// Recursive style checking all the children
-	for _, cc := range c.Children {
-		nc, exists := cc.GetContextByName(name)
+	if c.Child != nil {
+		nc, exists := c.Child.GetContextByName(name)
 		if exists {
 			return nc, exists
 		}
@@ -220,13 +320,13 @@ func (c *Context) GetContextByRef(ref string) (*Context, bool) {
 		}
 	}
 
-	if len(c.Children) == 0 {
+	if c.Child == nil {
 		return nil, false
 	}
 
 	// Recursive style checking all the children
-	for _, cc := range c.Children {
-		nc, exists := cc.GetContextByRef(ref)
+	if c.Child != nil {
+		nc, exists := c.Child.GetContextByRef(ref)
 		if exists {
 			return nc, exists
 		}
@@ -241,26 +341,25 @@ func (c *Context) GetContextByID(id uuid.UUID) (*Context, bool) {
 		return c, true
 	}
 
-	if len(c.Children) == 0 {
+	if c.Child == nil {
 		return nil, false
 	}
 
 	// Recursive style checking all the children
-	for _, cc := range c.Children {
-		nc, exists := cc.GetContextByID(id)
+	if c.Child != nil {
+		nc, exists := c.Child.GetContextByID(id)
 		if exists {
 			return nc, exists
 		}
 	}
-
 	return nil, false
 }
 
 // GetLastTreeItem returns the deepest child context in the tree.
 // Note, this only works when each context has 0 or 1 children
 func (c *Context) GetLastTreeItem() *Context {
-	if len(c.Children) > 0 {
-		return c.Children[0].GetLastTreeItem()
+	if c.Child != nil {
+		return c.Child.GetLastTreeItem()
 	}
 
 	return c
@@ -270,7 +369,7 @@ func (c *Context) GetLastTreeItem() *Context {
 func (c *Context) AddChildContext(context *Context) *Context {
 	context.ParentID = &c.ID
 	context.Parent = c
-	c.Children = append(c.Children, *context)
+	c.Child = context
 	return c
 }
 
@@ -364,10 +463,10 @@ func (c *Context) GetTemplateData() map[string]interface{} {
 
 		data[currentContext.Name] = tlData
 
-		if len(currentContext.Children) == 0 {
+		if currentContext.Child == nil {
 			break
 		} else {
-			currentContext = &currentContext.Children[0]
+			currentContext = currentContext.Child
 		}
 	}
 
@@ -427,22 +526,16 @@ func (c *Context) WithTransformations(transformations []Transformation) (*Contex
 		EnvironmentID: c.EnvironmentID,
 	}
 
-	if len(c.Children) > 0 {
-		var children []Context
-
-		for _, child := range c.Children {
-			transformed, err := child.WithTransformations(transformations)
-			if err != nil {
-				return nil, err
-			}
-
-			transformed.ParentID = &newContext.ID
-			transformed.Parent = &newContext
-
-			children = append(children, *transformed)
+	if c.Child != nil {
+		transformed, err := c.Child.WithTransformations(transformations)
+		if err != nil {
+			return nil, err
 		}
 
-		newContext.Children = children
+		transformed.ParentID = &newContext.ID
+		transformed.Parent = &newContext
+
+		newContext.Child = transformed
 	}
 
 	return &newContext, nil
