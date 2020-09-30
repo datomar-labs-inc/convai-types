@@ -10,3 +10,5 @@ type DBOrganization struct {
 	CreatedAt *CustomTime `db:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt *CustomTime `db:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
+
+

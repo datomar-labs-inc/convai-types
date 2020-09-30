@@ -17,6 +17,28 @@ type DBBot struct {
 	UpdatedAt         *CustomTime       `db:"updated_at,omitempty" json:"updated_at"`
 }
 
+
+type BotsByOrganization struct {
+	Organization DBOrganization `json:"organization"`
+	Bots []DBBot `json:"bots"`
+}
+
+type DBOrgWithBots struct {
+	DBOrganization
+	Bots DBBots `db:"bots"`
+}
+type DBBots []DBBot
+func (b DBBots) Value() (driver.Value, error) {
+	return postgresql.EncodeJSONB(b)
+}
+func (b *DBBots) Scan(src interface{}) error {
+	return postgresql.DecodeJSONB(b, src)
+}
+var (
+	_ driver.Valuer = &DBBots{}
+	_ sql.Scanner   = &DBBots{}
+)
+
 // APIBot is what is returned when fetching a single bot
 type APIBot struct {
 	*DBBot
