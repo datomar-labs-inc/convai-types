@@ -23,10 +23,6 @@ type BotsByOrganization struct {
 	Bots []DBBot `json:"bots"`
 }
 
-type DBOrgWithBots struct {
-	DBOrganization
-	Bots DBBots `db:"bots"`
-}
 type DBBots []DBBot
 func (b DBBots) Value() (driver.Value, error) {
 	return postgresql.EncodeJSONB(b)

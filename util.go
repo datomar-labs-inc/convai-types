@@ -27,10 +27,26 @@ var ContextTestTree = Context{
 			},
 		},
 	},
-	Children: []Context{
-		{
-			Name: "user_group",
-			ID:   CTTUserGroupID,
+	Child: &Context{
+		Name: "user_group",
+		ID:   CTTUserGroupID,
+		Memory: []MemoryContainer{
+			{
+				Name:    "data",
+				Type:    MCTypeSession,
+				Exposed: false,
+				Data: Mem{
+					"str":      "heyo",
+					"numstr":   "98",
+					"num":      5,
+					"fl":       10.5,
+					"flstring": "5.89",
+				},
+			},
+		},
+		Child: &Context{
+			Name: "user",
+			ID:   CTTUserID,
 			Memory: []MemoryContainer{
 				{
 					Name:    "data",
@@ -40,28 +56,8 @@ var ContextTestTree = Context{
 						"str":      "heyo",
 						"numstr":   "98",
 						"num":      5,
-						"fl":       10.5,
+						"fl":       0.557,
 						"flstring": "5.89",
-					},
-				},
-			},
-			Children: []Context{
-				{
-					Name: "user",
-					ID:   CTTUserID,
-					Memory: []MemoryContainer{
-						{
-							Name:    "data",
-							Type:    MCTypeSession,
-							Exposed: false,
-							Data: Mem{
-								"str":      "heyo",
-								"numstr":   "98",
-								"num":      5,
-								"fl":       0.557,
-								"flstring": "5.89",
-							},
-						},
 					},
 				},
 			},
@@ -75,4 +71,14 @@ func StrPtr(str string) *string {
 
 func TimePtr(time time.Time) *CustomTime {
 	return &CustomTime{time}
+}
+
+func StringSliceContains(slice []string, str string) bool {
+	for _, s := range slice {
+		if s == str {
+			return true
+		}
+	}
+
+	return false
 }

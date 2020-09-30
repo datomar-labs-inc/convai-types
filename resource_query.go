@@ -388,6 +388,50 @@ func (q *ResourceQuery) sortQueriesByField() *ResourceQuery {
 	return q
 }
 
+// FilterFields will remove all sort and query fields from the resource query that are not in allowedFields
+func (q *ResourceQuery) FilterFields(allowedFields ...string) *ResourceQuery {
+	var allowedQueries []RQQ
+
+	for _, query := range q.Queries {
+		if StringSliceContains(allowedFields, query.Field) {
+			allowedQueries = append(allowedQueries, query)
+		}
+	}
+
+	q.Queries = allowedQueries
+
+	var allowedSorts []RQSort
+
+	for _, srt := range q.Sort {
+		if StringSliceContains(allowedFields, srt.Field) {
+			allowedSorts = append(allowedSorts, srt)
+		}
+	}
+
+	q.Sort = allowedSorts
+
+	return q
+}
+
+// SelectivePrefix will add a prefix to any field names that match fieldName
+func (q *ResourceQuery) SelectivePrefix(fieldName, prefix string) *ResourceQuery {
+	for i, query := range q.Queries {
+		if query.Field == fieldName {
+			query.Field = prefix + query.Field
+			q.Queries[i] = query
+		}
+	}
+
+	for i, srt := range q.Sort {
+		if srt.Field == fieldName {
+			srt.Field = prefix + srt.Field
+			q.Sort[i] = srt
+		}
+	}
+
+	return q
+}
+
 // RQQ is one single query operation
 type RQQ struct {
 	Field    string  `json:"field"`
