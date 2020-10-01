@@ -71,7 +71,7 @@ func ResourceQueryFromURL(url *url.URL, fieldPrefix string) (*ResourceQuery, err
 		// Parse the ascending sort parameters
 		case "sort", "sortasc":
 			for _, field := range queryStr {
-				if !validateFieldName(field) {
+				if !validFieldName(field) {
 					return nil, errors.New("invalid field name " + field)
 				}
 
@@ -81,7 +81,7 @@ func ResourceQueryFromURL(url *url.URL, fieldPrefix string) (*ResourceQuery, err
 		// Parse the descending sort parameters
 		case "sortdesc":
 			for _, field := range queryStr {
-				if !validateFieldName(field) {
+				if !validFieldName(field) {
 					return nil, errors.New("invalid field name " + field)
 				}
 
@@ -105,7 +105,7 @@ func ResourceQueryFromURL(url *url.URL, fieldPrefix string) (*ResourceQuery, err
 
 				field := fieldPrefix + strings.TrimPrefix(key, prefix+".")
 
-				if !validateFieldName(field) {
+				if !validFieldName(field) {
 					return nil, errors.New("invalid field name " + field)
 				}
 
@@ -447,7 +447,7 @@ type RQSort struct {
 }
 
 func (r *RQSort) FieldNameValid() bool {
-	return validateFieldName(r.Field)
+	return validFieldName(r.Field)
 }
 
 // ValueAsTyped will try to convert the value into a number of formats, and return the best matching one
@@ -478,10 +478,10 @@ func (r *RQQ) ValueAsTyped() interface{} {
 }
 
 func (r *RQQ) FieldNameValid() bool {
-	return validateFieldName(r.Field)
+	return validFieldName(r.Field)
 }
 
-func validateFieldName(name string) bool {
+func validFieldName(name string) bool {
 	match, _ := regexp.MatchString("^[a-zA-Z_$@\\-]{1}[a-zA-Z_$@\\-0-9.]+$", name)
 	return match
 }

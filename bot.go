@@ -17,21 +17,19 @@ type DBBot struct {
 	UpdatedAt         *CustomTime       `db:"updated_at,omitempty" json:"updated_at"`
 }
 
-type DBOrgWithBots struct {
-	DBOrganization
-	Bots DBBots `db:"bots"`
+
+type BotsByOrganization struct {
+	Organization DBOrganization `json:"organization"`
+	Bots []DBBot `json:"bots"`
 }
 
 type DBBots []DBBot
-
-func (g DBBots) Value() (driver.Value, error) {
-	return postgresql.EncodeJSONB(g)
+func (b DBBots) Value() (driver.Value, error) {
+	return postgresql.EncodeJSONB(b)
 }
-
-func (g *DBBots) Scan(src interface{}) error {
-	return postgresql.DecodeJSONB(g, src)
+func (b *DBBots) Scan(src interface{}) error {
+	return postgresql.DecodeJSONB(b, src)
 }
-
 var (
 	_ driver.Valuer = &DBBots{}
 	_ sql.Scanner   = &DBBots{}
