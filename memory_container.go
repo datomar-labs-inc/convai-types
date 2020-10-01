@@ -17,6 +17,10 @@ type MemoryUpdate struct {
 	Transformations []Transformation `json:"t"`
 }
 
+type TransformMemoryInput struct {
+	Transformations []Transformation `json:"transformations"`
+}
+
 type Mem map[string]interface{}
 
 func (m Mem) ToTransformationsPrefixed(pathPrefix string) (trs []Transformation) {
@@ -32,7 +36,7 @@ func (m Mem) ToTransformationsPrefixed(pathPrefix string) (trs []Transformation)
 }
 
 func (m Mem) ToTransformations() (trs []Transformation) {
-	return m.ToTransformationsPrefixed("context.container")
+	return m.ToTransformationsPrefixed(".container")
 }
 
 func (m Mem) Transform(transformation ...Transformation) Mem {

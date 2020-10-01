@@ -1,6 +1,8 @@
 package ctypes
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -81,4 +83,29 @@ func StringSliceContains(slice []string, str string) bool {
 	}
 
 	return false
+}
+
+func StripUUID(id uuid.UUID) string {
+	return strings.ReplaceAll(id.String(), "-", "")
+}
+
+func ExpandUUID(strippedUUID string) uuid.UUID {
+	return uuid.MustParse(
+		fmt.Sprintf("%s-%s-%s-%s-%s",
+			substr(strippedUUID, 0, 8),
+			substr(strippedUUID, 8, 4),
+			substr(strippedUUID, 12, 4),
+			substr(strippedUUID, 16, 4),
+			substr(strippedUUID, 20, len(strippedUUID)-20),
+		),
+	)
+}
+
+func substr(s string, pos, length int) string {
+	runes := []rune(s)
+	l := pos + length
+	if l > len(runes) {
+		l = len(runes)
+	}
+	return string(runes[pos:l])
 }

@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/osteele/liquid"
+	"upper.io/db.v3/postgresql"
 )
 
 var reflectValueType = reflect.TypeOf((*reflect.Value)(nil)).Elem()
@@ -31,6 +32,11 @@ type CreateContextRequest struct {
 	ParentIDs []uuid.UUID           `json:"parent_ids"`
 	Refs      []string              `json:"refs"`
 	Child     *CreateContextRequest `json:"child,omitempty"` // Child allows you to easily create a context tree
+}
+
+type MergeContextRequest struct {
+	MergeIntoID   uuid.UUID      `json:"merge_into_id"`  // MergeIntoID is the id of the new parent context
+	ResourceQuery *ResourceQuery `json:"resource_query"` // ResourceQuery is the query used to find other contexts to merge
 }
 
 // Context is the actual data format for a context, NOT DATABASE FRIENDLY
@@ -113,17 +119,17 @@ func (c *Context) copyFrom(dbCtx *DBContextTreeItem, ignoreParentCount bool) (fi
 		})
 	}
 
-	c.ParentIDs = dbCtx.ParentIDs
+	c.ParentIDs = dbCtx.ParentIDs()
 
-	if len(dbCtx.ParentIDs) == 1 {
-		c.ParentID = &dbCtx.ParentIDs[0]
+	if len(dbCtx.ParentIDs()) == 1 {
+		c.ParentID = &dbCtx.ParentIDs()[0]
 
 		// Check if the tree can have it's parent updated
 		if c.Parent != nil && c.Parent.ID != *c.ParentID {
 			c.Parent.ID = *c.ParentID
 			filledParent = true // Filled parent is set to true to signal that the parent's id was updated, but nothing else
 		}
-	} else if len(dbCtx.ParentIDs) > 1 && !ignoreParentCount {
+	} else if len(dbCtx.ParentIDs()) > 1 && !ignoreParentCount {
 		return false, errors.New("cannot copy from a context with more than one parent")
 	}
 
@@ -176,20 +182,75 @@ type DBContext struct {
 	MemoryContainers DBMemoryContainers `db:"memory_containers" json:"memory_containers"`
 }
 
-type DBContextTreeItem struct {
-	DBContext
-	Hierarchy []string `db:"hierarchy" json:"hierarchy"`
-	Refs      []string `db:"refs" json:"refs"`
+func (d *DBContext) ToFullContext() *Context {
+	cx := Context{}
+	cx.CopyFromSafe(&DBContextTreeItem{DBContext: *d})
+	return &cx
 }
 
-func (d *DBContextTreeItem) ParentIDs() []uuid.UUID {
+func (d *DBContext) GetMemoryContainerByName(name string) *DBMemoryContainer {
+	for _, mc := range d.MemoryContainers {
+		if mc.Name == name {
+			return &mc
+		}
+	}
+
+	return nil
+}
+
+type DBContextTreeItem struct {
+	DBContext
+	Hierarchy postgresql.StringArray `db:"hierarchy" json:"hierarchy"`
+	Refs      postgresql.StringArray `db:"refs" json:"refs"`
+	Count     uint64                 `db:"count" json:"count"`
+}
+
+func (d *DBContextTreeItem) ParentIDs() (parentIDs []uuid.UUID) {
 	for _, h := range d.Hierarchy {
 		bits := strings.Split(h, ".")
 
 		if len(bits) > 1 {
-
+			parentIDs = append(parentIDs, ExpandUUID(bits[len(bits)-2]))
 		}
 	}
+
+	return
+}
+
+func (d *DBContextTreeItem) HierarchyIDs() (hierarchyIDs [][]uuid.UUID) {
+	for _, h := range d.Hierarchy {
+		bits := strings.Split(h, ".")
+
+		var ids []uuid.UUID
+
+		for _, bit := range bits {
+			ids = append(ids, ExpandUUID(bit))
+		}
+
+		hierarchyIDs = append(hierarchyIDs, ids)
+	}
+
+	return
+}
+
+func (d *DBContextTreeItem) HasRef(ref string) bool {
+	for _, r := range d.Refs {
+		if r == ref {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (d *DBContextTreeItem) HasRefFrom(refs []string) bool {
+	for _, r := range refs {
+		if d.HasRef(r) {
+			return true
+		}
+	}
+
+	return false
 }
 
 type DBContextWithCount struct {
@@ -227,26 +288,6 @@ func (u *UUIDSlice) Scan(src interface{}) error {
 	}
 
 	return nil
-}
-
-func (d *DBContext) HasRef(ref string) bool {
-	for _, r := range d.Refs {
-		if r == ref {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (d *DBContext) HasRefFrom(refs []string) bool {
-	for _, r := range refs {
-		if d.HasRef(r) {
-			return true
-		}
-	}
-
-	return false
 }
 
 type DBContextTree struct {
