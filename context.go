@@ -55,6 +55,18 @@ type Context struct {
 	Child *Context `json:"child,omitempty"`
 }
 
+func (c *Context) Root() *Context {
+	currentRoot := c
+
+	for {
+		if currentRoot.Parent != nil {
+			currentRoot = currentRoot.Parent
+		} else {
+			return currentRoot
+		}
+	}
+}
+
 // IDPath returns a groove friendly id path for the context
 func (c *Context) IDPath() string {
 	id := ""
@@ -120,19 +132,6 @@ func (c *Context) copyFrom(dbCtx *DBContextTreeItem, ignoreParentCount bool) (fi
 	}
 
 	c.ParentIDs = dbCtx.ParentIDs()
-
-	if len(dbCtx.ParentIDs()) == 1 {
-		c.ParentID = &dbCtx.ParentIDs()[0]
-
-		// Check if the tree can have it's parent updated
-		if c.Parent != nil && c.Parent.ID != *c.ParentID {
-			c.Parent.ID = *c.ParentID
-			filledParent = true // Filled parent is set to true to signal that the parent's id was updated, but nothing else
-		}
-	} else if len(dbCtx.ParentIDs()) > 1 && !ignoreParentCount {
-		return false, errors.New("cannot copy from a context with more than one parent")
-	}
-
 	return
 }
 
@@ -300,6 +299,38 @@ type ContextTreeSlice struct {
 	Name  string            `json:"name"`
 	Ref   *string           `json:"ref"` // Ref in this case is only one value because it's used to search
 	Child *ContextTreeSlice `json:"child"`
+}
+
+// GetTreeQuery returns a query that can be transformed by the expand_tree_query plsql function into an ltree query
+func (c *ContextTreeSlice) GetTreeQuery() string {
+	return strings.TrimPrefix(c.getTreeQuery(), "$")
+}
+
+// GetTreeQuery returns a query that can be transformed by the expand_tree_query plsql function into an ltree query
+func (c *ContextTreeSlice) getTreeQuery() string {
+	q := ""
+
+	if c.Ref != nil {
+		q += "$" + *c.Ref
+	} else {
+		q += "$*"
+	}
+
+	if c.Child != nil {
+		return q + c.Child.getTreeQuery()
+	}
+
+	return q
+}
+
+func (c *ContextTreeSlice) ChildCount() int {
+	n := 1
+
+	if c.Child != nil {
+		n += c.Child.ChildCount()
+	}
+
+	return n
 }
 
 // Retrieve context from a tree slice by name

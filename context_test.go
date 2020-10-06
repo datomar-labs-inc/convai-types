@@ -300,3 +300,53 @@ func TestContext_IDPath(t *testing.T) {
 		t.Error("id path invalid")
 	}
 }
+
+func TestContextTreeSlice_GetTreeQuery(t *testing.T) {
+	ref1 := "channel.something.18888"
+	ref2 := "channel.user.166666"
+	ref3 := "channel.thready.155555"
+
+	// User structure
+	cts := ContextTreeSlice{
+		Name: "env",
+		Ref:  &ref1,
+		Child: &ContextTreeSlice{
+			Name: "user_group",
+			Child: &ContextTreeSlice{
+				Name: "channel_user",
+				Ref:  &ref2,
+				Child: &ContextTreeSlice{
+					Name: "thread",
+					Ref:  &ref3,
+				},
+			},
+		},
+	}
+
+	tq := cts.GetTreeQuery()
+
+	wanted := "channel.something.18888$*$channel.user.166666$channel.thready.155555"
+
+	if tq != wanted {
+		t.Errorf("invalid return value, wanted %s, got %s", wanted, tq)
+	}
+}
+
+func TestDBContextTreeItem_ParentIDs(t *testing.T) {
+	item := DBContextTreeItem{
+		Hierarchy: []string{
+			"9a5beba49854496d90d6cb880c8f6f20.3e83932409154348ac5b89a187ed0281.270066a63c9c4b83a80cefb1b4986d65.65c8d31b5d4b4df7b8a7a6a5cbd67a71",
+			"9a5beba49854496d90d6cb880c8f6f20.312966179859445c8ebb2910752009b0",
+		},
+	}
+
+	pids := item.ParentIDs()
+
+	if pids[0] != ExpandUUID("270066a63c9c4b83a80cefb1b4986d65") {
+		t.Errorf("expected parent id %s, got %s", ExpandUUID("270066a63c9c4b83a80cefb1b4986d65").String(), pids[0].String())
+	}
+
+	if pids[1] != ExpandUUID("9a5beba49854496d90d6cb880c8f6f20") {
+		t.Errorf("expected parent id %s, got %s", ExpandUUID("9a5beba49854496d90d6cb880c8f6f20").String(), pids[1].String())
+	}
+}
