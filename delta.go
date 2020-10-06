@@ -56,23 +56,19 @@ type DBDelta struct {
 }
 
 func (d *DBDelta) GetGroovePath() string {
-	if d.BlueprintID != nil {
-		return fmt.Sprintf("%s.%s", d.BlueprintID.String(), d.ID.String())
-	} else {
-		idParts := ""
+	idParts := ""
 
-		for _, op := range d.Operations {
-			if op.Type == DOUpdateEnvironmentPackageConfig {
-				idParts += op.UpdateEnvironmentPackageConfig.EnvironmentID.String()
-			}
+	for _, op := range d.Operations {
+		if op.Type == DOUpdateEnvironmentPackageConfig {
+			idParts += op.UpdateEnvironmentPackageConfig.EnvironmentID.String()
 		}
-
-		if idParts == "" {
-			idParts = "unknown"
-		}
-
-		return fmt.Sprintf("%s.%s", idParts, d.ID.String())
 	}
+
+	if idParts == "" {
+		idParts = "unknown"
+	}
+
+	return fmt.Sprintf("%s.%s.%s", idParts, d.ID.String(), d.BlueprintVersion)
 }
 
 type DeltaOperations []DeltaOperation
