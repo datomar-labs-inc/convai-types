@@ -12,14 +12,17 @@ import (
 	"upper.io/db.v3/postgresql"
 )
 
+const MODULE_DEV_VERSION = "0.0.0-dev"
+
 type DBModule struct {
-	ID        uuid.UUID   `db:"id" json:"id"`
-	Version   string      `db:"version" json:"version"`
-	Changelog string      `db:"changelog" json:"changelog"`
-	Name      string      `db:"name" json:"name"`
-	Graph     GraphModule `db:"graph" json:"graph"`
-	CreatedAt *CustomTime `db:"created_at,omitempty" json:"created_at"`
-	UpdatedAt *CustomTime `db:"updated_at,omitempty" json:"updated_at"`
+	ID             uuid.UUID   `db:"id" json:"id"`
+	Version        string      `db:"version" json:"version"`
+	Changelog      string      `db:"changelog" json:"changelog"`
+	Name           string      `db:"name" json:"name"`
+	Graph          GraphModule `db:"graph" json:"graph"`
+	OrganizationID uuid.UUID   `db:"organization_id" json:"organization_id"`
+	CreatedAt      *CustomTime `db:"created_at,omitempty" json:"created_at"`
+	UpdatedAt      *CustomTime `db:"updated_at,omitempty" json:"updated_at"`
 }
 
 type GraphNode struct {

@@ -46,12 +46,13 @@ type ApplyDeltaRequest struct {
 }
 
 type DBDelta struct {
-	ID          uuid.UUID       `db:"id" json:"id"`
-	AccountID   uuid.UUID       `db:"account_id" json:"account_id"`
-	UpdateType  int             `db:"update_type" json:"update_type"`
-	Operations  DeltaOperations `db:"delta" json:"delta"`
-	BlueprintID *uuid.UUID      `db:"blueprint_id,omitempty" json:"blueprint_id,omitempty"`
-	CreatedAt   *CustomTime     `db:"created_at,omitempty" json:"created_at,omitempty"`
+	ID               uuid.UUID       `db:"id" json:"id"`
+	AccountID        uuid.UUID       `db:"account_id" json:"account_id"`
+	UpdateType       int             `db:"update_type" json:"update_type"`
+	Operations       DeltaOperations `db:"delta" json:"delta"`
+	BlueprintID      uuid.UUID       `db:"blueprint_id" json:"blueprint_id"`
+	BlueprintVersion string          `db:"blueprint_version" json:"blueprint_version"`
+	CreatedAt        *CustomTime     `db:"created_at,omitempty" json:"created_at,omitempty"`
 }
 
 func (d *DBDelta) GetGroovePath() string {
