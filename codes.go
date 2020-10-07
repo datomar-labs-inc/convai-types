@@ -27,4 +27,5 @@ const (
 	ErrMissingBotHeader         = 902
 	ErrMissingEnvHeader         = 903
 	ErrInvalidHeaderFormat      = 904
+	ErrInvalidParameter         = 905
 )

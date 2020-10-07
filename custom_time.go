@@ -12,7 +12,7 @@ type CustomTime struct {
 	time.Time
 }
 
-const ctLayout = "2006-01-02T15:04:05.000000"
+const ctLayout = "2006-01-02T15:04:05.00000"
 
 func (ct *CustomTime) UnmarshalJSON(b []byte) (err error) {
 	s := strings.Trim(string(b), "\"")

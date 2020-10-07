@@ -14,6 +14,7 @@ var (
 	InvalidTokenError           = &APIError{Code: ErrInvalidToken, Message: "Invalid authentication token", statusCode: http.StatusUnauthorized}
 	NotAuthenticatedError       = &APIError{Code: ErrNotAuthenticated, Message: "Cannot perform action without being authenticated", statusCode: http.StatusUnauthorized}
 	InvalidHeaderFormat         = &APIError{Code: ErrInvalidHeaderFormat, Message: "A header was supplied with an invalid format", statusCode: http.StatusBadRequest}
+	InvalidParameterFormat      = &APIError{Code: ErrInvalidParameter, Message: "A parameter was supplied in an invalid format", statusCode: http.StatusBadRequest}
 	MissingEnvironmentIDHeader  = &APIError{Code: ErrMissingEnvHeader, Message: "The X-Environment-ID header must be present", statusCode: http.StatusForbidden}
 	MissingBotIDHeader          = &APIError{Code: ErrMissingBotHeader, Message: "The X-Bot-ID header must be present", statusCode: http.StatusForbidden}
 	MissingOrganizationIDHeader = &APIError{Code: ErrMissingOrgHeader, Message: "The X-Organization-ID header must be present", statusCode: http.StatusForbidden}
@@ -92,3 +93,16 @@ func GenericError(err error) *APIError {
 		Message: msg,
 	}
 }
+
+func InternalError(err error) *APIError {
+	msg := "Convai encountered an internal error"
+	if err != nil {
+		msg = err.Error()
+	}
+	return &APIError{
+		Code:    ErrGenericError,
+		Message: msg,
+		statusCode: http.StatusInternalServerError,
+	}
+}
+
