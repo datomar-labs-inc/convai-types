@@ -11,7 +11,7 @@ import (
 type DBBlueprint struct {
 	ID        uuid.UUID    `db:"id" json:"id"`
 	Modules   DBModuleList `db:"modules" json:"modules"`
-	Version   string       `db:"version" json:"version"`
+	Version   Semver       `db:"version" json:"version"`
 	BotID     uuid.UUID    `db:"bot_id" json:"bot_id"`
 	CreatedAt *CustomTime  `db:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt *CustomTime  `db:"updated_at,omitempty" json:"updated_at,omitempty"`
@@ -30,7 +30,7 @@ var (
 	_ sql.Scanner   = &DBBlueprint{}
 )
 
-type DBModuleList []DBModuleListItem
+type DBModuleList map[uuid.UUID]DBModuleListItem
 
 func (g DBModuleList) Value() (driver.Value, error) {
 	return postgresql.EncodeJSONB(g)
@@ -45,7 +45,9 @@ var (
 	_ sql.Scanner   = &DBModuleList{}
 )
 
+// DBModuleListItem is a single module that is locally scoped to a blueprint
 type DBModuleListItem struct {
-	ModuleID uuid.UUID `db:"id" json:"id"`
-	Version  string    `db:"version" json:"version"`
+	ModuleID uuid.UUID   `json:"id"`
+	Name     string      `json:"name"`
+	Graph    GraphModule `json:"graph"`
 }

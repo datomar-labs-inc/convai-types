@@ -41,37 +41,35 @@ const (
 )
 
 type ApplyDeltaRequest struct {
-	Operations  DeltaOperations `json:"operations"`
-	BlueprintID *uuid.UUID      `json:"blueprint_id,omitempty"`
+	Operations       DeltaOperations `json:"operations"`
+	BlueprintID      uuid.UUID       `json:"blueprint_id"`
+	BlueprintVersion Semver          `json:"blueprint_version"`
 }
 
 type DBDelta struct {
-	ID          uuid.UUID       `db:"id" json:"id"`
-	AccountID   uuid.UUID       `db:"account_id" json:"account_id"`
-	UpdateType  int             `db:"update_type" json:"update_type"`
-	Operations  DeltaOperations `db:"delta" json:"delta"`
-	BlueprintID *uuid.UUID      `db:"blueprint_id,omitempty" json:"blueprint_id,omitempty"`
-	CreatedAt   *CustomTime     `db:"created_at,omitempty" json:"created_at,omitempty"`
+	ID               uuid.UUID       `db:"id" json:"id"`
+	AccountID        uuid.UUID       `db:"account_id" json:"account_id"`
+	UpdateType       int             `db:"update_type" json:"update_type"`
+	Operations       DeltaOperations `db:"delta" json:"delta"`
+	BlueprintID      uuid.UUID       `db:"blueprint_id" json:"blueprint_id"`
+	BlueprintVersion Semver          `db:"blueprint_version" json:"blueprint_version"`
+	CreatedAt        *CustomTime     `db:"created_at,omitempty" json:"created_at,omitempty"`
 }
 
 func (d *DBDelta) GetGroovePath() string {
-	if d.BlueprintID != nil {
-		return fmt.Sprintf("%s.%s", d.BlueprintID.String(), d.ID.String())
-	} else {
-		idParts := ""
+	idParts := ""
 
-		for _, op := range d.Operations {
-			if op.Type == DOUpdateEnvironmentPackageConfig {
-				idParts += op.UpdateEnvironmentPackageConfig.EnvironmentID.String()
-			}
+	for _, op := range d.Operations {
+		if op.Type == DOUpdateEnvironmentPackageConfig {
+			idParts += op.UpdateEnvironmentPackageConfig.EnvironmentID.String()
 		}
-
-		if idParts == "" {
-			idParts = "unknown"
-		}
-
-		return fmt.Sprintf("%s.%s", idParts, d.ID.String())
 	}
+
+	if idParts == "" {
+		idParts = "unknown"
+	}
+
+	return fmt.Sprintf("%s.%s.%s", idParts, d.ID.String(), d.BlueprintVersion)
 }
 
 type DeltaOperations []DeltaOperation
