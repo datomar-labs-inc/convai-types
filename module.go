@@ -12,7 +12,7 @@ import (
 	"upper.io/db.v3/postgresql"
 )
 
-const MODULE_DEV_VERSION = "0.0.0-dev"
+var INITIAL_VERSION = Semver{semver.MustParse("0.0.1")}
 
 type DBModule struct {
 	ID             uuid.UUID   `db:"id" json:"id"`

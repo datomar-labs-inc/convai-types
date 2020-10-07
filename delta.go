@@ -41,8 +41,9 @@ const (
 )
 
 type ApplyDeltaRequest struct {
-	Operations  DeltaOperations `json:"operations"`
-	BlueprintID *uuid.UUID      `json:"blueprint_id,omitempty"`
+	Operations       DeltaOperations `json:"operations"`
+	BlueprintID      uuid.UUID       `json:"blueprint_id"`
+	BlueprintVersion Semver          `json:"blueprint_version"`
 }
 
 type DBDelta struct {
@@ -51,7 +52,7 @@ type DBDelta struct {
 	UpdateType       int             `db:"update_type" json:"update_type"`
 	Operations       DeltaOperations `db:"delta" json:"delta"`
 	BlueprintID      uuid.UUID       `db:"blueprint_id" json:"blueprint_id"`
-	BlueprintVersion string          `db:"blueprint_version" json:"blueprint_version"`
+	BlueprintVersion Semver          `db:"blueprint_version" json:"blueprint_version"`
 	CreatedAt        *CustomTime     `db:"created_at,omitempty" json:"created_at,omitempty"`
 }
 

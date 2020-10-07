@@ -9,13 +9,14 @@ import (
 )
 
 type DBEnvironment struct {
-	ID          uuid.UUID       `db:"id" json:"id"`
-	Name        string          `db:"name" json:"name"`
-	BotID       uuid.UUID       `db:"bot_id" json:"bot_id"`
-	Data        EnvironmentData `db:"data" json:"data"`
-	BlueprintID *uuid.UUID      `db:"blueprint_id,omitempty" json:"blueprint_id,omitempty"`
-	PromotedAt  *CustomTime     `db:"promoted_at,omitempty" json:"promoted_at,omitempty"`
-	IsDev       bool            `db:"is_dev" json:"is_dev"`
+	ID               uuid.UUID       `db:"id" json:"id"`
+	Name             string          `db:"name" json:"name"`
+	BotID            uuid.UUID       `db:"bot_id" json:"bot_id"`
+	Data             EnvironmentData `db:"data" json:"data"`
+	BlueprintID      *uuid.UUID      `db:"blueprint_id,omitempty" json:"blueprint_id,omitempty"`
+	BlueprintVersion *Semver         `db:"blueprint_version,omitempty" json:"blueprint_version,omitempty"`
+	PromotedAt       *CustomTime     `db:"promoted_at,omitempty" json:"promoted_at,omitempty"`
+	IsDev            bool            `db:"is_dev" json:"is_dev"`
 }
 
 // APIEnvironment includes the environment details, as well as the blueprint (if any)
